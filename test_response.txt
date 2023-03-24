@@ -1,4 +1,4 @@
-teste A
+teste B
 
 niltonpaes@Niltons-MBP album % php robot.php
 
