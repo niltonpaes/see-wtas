@@ -12,8 +12,8 @@ composer.phar
 node_modules/
 
 # Logs and other files
-*.log
-*.txt
+# *.log
+# *.txt
 
 # Environment variables
 .env
