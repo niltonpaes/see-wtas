@@ -51,6 +51,11 @@
         // $output contains the output string
         $output = curl_exec($curl);
 
+        // Check for errors
+        if (curl_errno($curl)) {
+            dd('cURL error: ' . curl_error($curl));
+        }
+
         // close curl resource to free up system resources
         // (deletes the variable made by curl_init)
         curl_close($curl);
@@ -94,8 +99,8 @@
 
         $fullChatGPTMessage = "Create a detailed summary list of the reviews PROVIDED by the user in a JSON format. \n\n";
         $fullChatGPTMessage .= "The response must have ONLY the JSON object with the following keys: \n\n";
-        $fullChatGPTMessage .= "key 'pros', that should contain an array of the summary list of the POSITIVE points of the product, and should not have more than 10 items. \n\n";
-        $fullChatGPTMessage .= "key 'cons', that should contain an array of the summary list of the NEGATIVE points of the product, and should not have more than 10 items. \n\n";
+        $fullChatGPTMessage .= "key 'pros', that should contain an array of the summary list of the POSITIVE points of the product, and should not have more than 5 items. \n\n";
+        $fullChatGPTMessage .= "key 'cons', that should contain an array of the summary list of the NEGATIVE points of the product, and should not have more than 5 items. \n\n";
         $fullChatGPTMessage .= "key 'total_reviews', should contain the number of reviews processed. \n\n";
         $fullChatGPTMessage .= "key 'positive_reviews', should contain the number of positive reviews. \n\n";
         $fullChatGPTMessage .= "key 'negative_reviews', should contain the number of negative reviews. \n\n";
@@ -132,7 +137,7 @@
 
 
 
-        if ($complete !== false && !array_key_exists('error', $json_data)) {
+        if ( $complete !== false && !array_key_exists('error', $json_data) && $content["pros"] && $content["cons"] && $content["total_reviews"] && $content["positive_reviews"] && $content["negative_reviews"]) {
             // ****************** totals - BEGIN
             $fullPros = array_merge($fullPros, $content["pros"]);
             $fullCons = array_merge($fullCons, $content["cons"]);
@@ -176,7 +181,7 @@
         // appending to the list of reviews
         $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
     }
-    $fullChatGPTMessage = "Summarize/consolidate the list of the reviews PROVIDED by the user, merging, combining similar reviews,  in a JSON format. \n\n";
+    $fullChatGPTMessage = "Summarize, consolidate, merge, combine the list of the reviews PROVIDED by the user in a JSON format. \n\n";
     $fullChatGPTMessage .= "The response must have ONLY the JSON object with a key named 'summaryPros' that should contain an array with the summarized list, and must not have more than 20 items. \n\n";
 
     dd($fullChatGPTMessage);
@@ -229,7 +234,7 @@
         // appending to the list of reviews
         $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
     }
-    $fullChatGPTMessage = "Summarize/consolidate the list of the reviews PROVIDED by the user, merging, combining similar reviews,  in a JSON format. \n\n";
+    $fullChatGPTMessage = "Summarize, consolidate, merge and combine the list of the reviews PROVIDED by the user in a JSON format \n\n";
     $fullChatGPTMessage .= "The response must have ONLY the JSON object with a key named 'summaryCons' that should contain an array with the summarized list, and must not have more than 20 items. \n\n";
 
     dd($fullChatGPTMessage);
