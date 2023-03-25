@@ -1,9 +1,9 @@
 <?php
     function dd($value)
     {
-        // echo "<br><br><pre>";
+        echo "<br><pre>";
         var_dump($value);
-        // echo "</pre><br><br>";
+        echo "</pre><br>";
 
         // die();
     }
@@ -87,6 +87,9 @@
         }
     }
 
+    dd("*************************************************************************************************************");
+    dd("************************************* ALL REVIEW FROM BEST BUY **********************************************");
+    dd("*************************************************************************************************************");
     dd($reviews);
 
 
@@ -129,28 +132,32 @@
 
             // ****************** chatGPT - BEGIN
 
-            $fullChatGPTMessage = "Create a detailed summary list of the reviews PROVIDED by the user in a JSON format. \n\n";
-            $fullChatGPTMessage .= "The response must have ONLY the JSON object with the following keys: \n\n";
-            $fullChatGPTMessage .= "key 'pros', that should contain an array of the summary list of the POSITIVE points of the product, and should not have more than 5 items. \n\n";
-            $fullChatGPTMessage .= "key 'cons', that should contain an array of the summary list of the NEGATIVE points of the product, and should not have more than 5 items. \n\n";
-            $fullChatGPTMessage .= "key 'total_reviews', should contain the number of reviews processed. \n\n";
-            $fullChatGPTMessage .= "key 'positive_reviews', should contain the number of positive reviews. \n\n";
-            $fullChatGPTMessage .= "key 'negative_reviews', should contain the number of negative reviews. \n\n";
+            $fullChatGPTMessage = "Take this List of reviews: \n\n";
+            $fullChatGPTMessage .= $reviewsForGPT;
+            $fullChatGPTMessage .= "Now, Create a valid JSON object with the following keys: \n\n";
+            $fullChatGPTMessage .= "key 'pros'. This should be an array. And should contain a detailed summary of the POSITIVE points of the product, and should not have more than 5 items. \n\n";
+            $fullChatGPTMessage .= "key 'cons'. This should be an array. And should contain a detailed summary of the NEGATIVE points of the product, and should not have more than 5 items. \n\n";
+            $fullChatGPTMessage .= "key 'total_reviews'. This should be a number. And should contain the TOTAL number of items in the list of reviews. \n\n";
+            $fullChatGPTMessage .= "key 'positive_reviews'. This should be a number. And should contain the number of POSITIVE reviews. \n\n";
+            $fullChatGPTMessage .= "key 'negative_reviews'. This should be a number. And should contain the number of NEGATIVE reviews. \n\n";
+            $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
 
-            dd("*******************************************************");
+
+            dd("*************************************************************************************************************");
+            dd("************************************* CALLING CHATGPT **********************************************");
+            dd("*************************************************************************************************************");
             dd($fullChatGPTMessage);
-            dd("List of reviews: \n\n" . $reviewsForGPT);
 
             $complete = $open_ai->chat([
                 'model' => 'gpt-3.5-turbo',
                 'messages' => [
                     [
                         "role" => "system",
-                        "content" =>  $fullChatGPTMessage
+                        "content" =>  "You are going to summarize reviews."
                     ],
                     [
                         "role" => "user",
-                        "content" => "List of reviews: \n\n" . $reviewsForGPT
+                        "content" => $fullChatGPTMessage
                     ],
                 ],
                 'temperature' => 1.0,
@@ -185,6 +192,9 @@
                 dd($content["positive_reviews"]);
                 dd($content["negative_reviews"]);
             }
+            else {
+                dd("****************************** partial pros/cons  - FOUND ERROS ***********************************");
+            }
 
 
 
@@ -214,7 +224,7 @@
 
     // ****************** chatGPT - BEGIN
     $validResponse = false;
-    while($validResponse) {
+    while(!$validResponse) {
         $reviewsForGPT = "";
         foreach ($fullPros as $index => $comment) {
             // cleaning the review
@@ -225,22 +235,24 @@
             // appending to the list of reviews
             $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
         }
-        $fullChatGPTMessage = "Summarize, consolidate, merge, combine the list of the reviews PROVIDED by the user in a JSON format. \n\n";
-        $fullChatGPTMessage .= "The response must have ONLY the JSON object with a key named 'summaryPros' that should contain an array with the summarized list, and must not have more than 20 items. \n\n";
+        $fullChatGPTMessage = "Take this List of reviews: \n\n";
+        $fullChatGPTMessage .= $reviewsForGPT;
+        $fullChatGPTMessage .= "Now, Create a valid JSON object with the following keys: \n\n";
+        $fullChatGPTMessage .= "key 'summaryPros'. This should be an array. And should contain a detailed summary of the List of reviews, and should not have more than 20 items. \n\n";
+        $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
 
         dd($fullChatGPTMessage);
-        dd("List of reviews: \n\n" . $reviewsForGPT);
 
         $complete = $open_ai->chat([
             'model' => 'gpt-3.5-turbo',
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => $fullChatGPTMessage
+                    "content" => "You are going to summarize reviews."
                 ],
                 [
                     "role" => "user",
-                    "content" => "List of reviews: \n\n" . $reviewsForGPT
+                    "content" => $fullChatGPTMessage
                 ],
             ],
             'temperature' => 1.0,
@@ -261,10 +273,10 @@
             $validResponse = true;
         }
         else {
-            dd("*********************** RETRY ***********************");
+            dd("*********************** GOT an error Let's RETRY ***********************");
         }
-        dd($summaryPros);
     }
+    dd($summaryPros);
     // ****************** chatGPT - END
 
     
@@ -274,7 +286,7 @@
 
     // ****************** chatGPT - BEGIN
     $validResponse = false;
-    while($validResponse) {
+    while(!$validResponse) {
         $reviewsForGPT = "";
         foreach ($fullCons as $index => $comment) {
             // cleaning the review
@@ -285,22 +297,25 @@
             // appending to the list of reviews
             $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
         }
-        $fullChatGPTMessage = "Summarize, consolidate, merge and combine the list of the reviews PROVIDED by the user in a JSON format \n\n";
-        $fullChatGPTMessage .= "The response must have ONLY the JSON object with a key named 'summaryCons' that should contain an array with the summarized list, and must not have more than 20 items. \n\n";
+
+        $fullChatGPTMessage = "Take this List of reviews: \n\n";
+        $fullChatGPTMessage .= $reviewsForGPT;
+        $fullChatGPTMessage .= "Now, Create a valid JSON object with the following keys: \n\n";
+        $fullChatGPTMessage .= "key 'summaryCons'. This should be an array. And should contain a detailed summary of the List of reviews, and should not have more than 20 items. \n\n";
+        $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
 
         dd($fullChatGPTMessage);
-        dd("List of reviews: \n\n" . $reviewsForGPT);
 
         $complete = $open_ai->chat([
             'model' => 'gpt-3.5-turbo',
             'messages' => [
                 [
                     "role" => "system",
-                    "content" => $fullChatGPTMessage
+                    "content" => "You are going to summarize reviews."
                 ],
                 [
                     "role" => "user",
-                    "content" => "List of reviews: \n\n" . $reviewsForGPT
+                    "content" => $fullChatGPTMessage
                 ],
             ],
             'temperature' => 1.0,
@@ -321,10 +336,10 @@
             $validResponse = true;
         }
         else {
-            dd("*********************** RETRY ***********************");
+            dd("*********************** GOT an error Let's RETRY ***********************");
         }
-        dd($summaryCons);
     }
+    dd($summaryCons);
     // ****************** chatGPT - END
 
 ?>
