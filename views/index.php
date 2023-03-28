@@ -8,7 +8,8 @@
 		<meta name="generator" content="Hugo 0.108.0" />
 		<title>Album example · Bootstrap v5.3</title>
 
-		<link href="./assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+		<link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet" />
+
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
 		<!-- SEO information -->
@@ -77,9 +78,9 @@
 				font-size: calc(13px + 0.6vw);
 			}
 			@keyframes blink {
-			50% {
-				opacity: 0;
-			}
+				50% {
+					opacity: 0;
+				}
 			}
 
 		</style>
@@ -109,12 +110,12 @@
 			</div>
 			<div class="navbar navbar-dark bg-dark shadow-sm">
 				<div class="container">
-					<a href="#" class="navbar-brand d-flex flex-column flex-md-row align-items-center">
+					<a href="/" class="navbar-brand d-flex flex-column flex-md-row align-items-center">
 						<!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true" class="me-2" viewBox="0 0 24 24">
 							<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
 							<circle cx="12" cy="13" r="4" />
 						</svg> -->
-						<img class="rounded-4 logoSize" src="new_logo_1_transp_bg.png" alt="...">
+						<img class="rounded-4 logoSize" src="images/new_logo_1_transp_bg.png" alt="...">
 
 						<div class="d-flex align-items-center">
 							<h1 class="navTitle fw-bolder mb-0 px-0 px-md-2">See what they are saying...</h1>
@@ -168,7 +169,7 @@
 									<div class="d-flex justify-content-between align-items-center">
 										<div class="btn-group">
 											<!-- <button type="button" class="btn btn-sm btn-outline-secondary">View</button> -->
-											<a href="view.php" class="btn btn-sm btn-outline-secondary">View</a>
+											<a href="/en/products/logitech-mx-master-3s" class="btn btn-sm btn-outline-secondary">View</a>
 											<!-- <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button> -->
 										</div>
 										<small class="text-muted">9 mins</small>
@@ -352,6 +353,7 @@
 			</div>
 		</footer>
 
-		<script src="./assets/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="/assets/dist/js/bootstrap.bundle.min.js"></script>
+
 	</body>
 </html>
