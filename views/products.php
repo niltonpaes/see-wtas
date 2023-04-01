@@ -5,13 +5,13 @@ if (true) {
 // Connect to the database using PDO
 $dsn = "mysql:host=localhost:3306;dbname=seewtas";
 $username = "root";
-$password = "root";
+$password = "";
 $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 $pdo = new PDO($dsn, $username, $password, $options);
 
 // Prepare the SELECT statement
 // $sql = "SELECT  FROM mytable WHERE id = ?";
-$sql = "SELECT summary_pros, summary_cons, total_pros, total_cons FROM reviews where path = ?";
+$sql = "SELECT summary_pros, summary_cons, total_pros, total_cons FROM reviews where path = ? and status='deleted'";
 
 $stmt = $pdo->prepare($sql);
 
@@ -20,17 +20,22 @@ $stmt->bindParam(1, $product);
 
 // Execute the statement and fetch the result
 $stmt->execute();
-$result = $stmt->fetch();
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Check if a record exists
 if (!$result) {
     dd("Record does not exist.");
 }
 else {
+	// dd($result);
+	// dd($result['summary_pros']);
+	// dd(json_decode($result['summary_pros']));
+	// die();
+
 	$summaryPros = json_decode($result['summary_pros'])->summaryPros;
 	$summaryCons = json_decode($result['summary_cons'])->summaryCons;
-	$totalPros = round((json_decode($result['total_pros']) / (json_decode($result['total_pros']) + json_decode($result['total_cons'])))*100, 1) . "%" ;
-	$totalCons = round((json_decode($result['total_cons']) / (json_decode($result['total_pros']) + json_decode($result['total_cons'])))*100, 1) . "%" ;
+	$totalPros = round( ( $result['total_pros'] / ( $result['total_pros'] + $result['total_cons'] ) ) *100 , 1) . "%" ;
+	$totalCons = round( ( $result['total_cons'] / ( $result['total_pros'] + $result['total_cons'] ) ) *100 , 1) . "%" ;
 }
 
 }
