@@ -3,9 +3,13 @@
 if (true) {
 
 // Connect to the database using PDO
-$dsn = "mysql:host=localhost:3306;dbname=seewtas";
+// $dsn = "mysql:host=localhost:3306;dbname=seewtas";
+// $username = "root";
+// $password = "";
+$dsn = "mysql:host=localhost:8889;dbname=seewtas";
 $username = "root";
-$password = "";
+$password = "root";
+
 $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 $pdo = new PDO($dsn, $username, $password, $options);
 
