@@ -1,4 +1,27 @@
 <?php
+
+    
+    // ******************** CHATGPT CONFIGURATION ********************
+    require __DIR__ . '/../../vendor/autoload.php'; // remove this line if you use a PHP Framework.
+    use Orhanerday\OpenAi\OpenAi;
+    $open_ai_key = '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';
+    $open_ai = new OpenAi($open_ai_key);
+
+
+    // ******************** MYSQL CONFIGURATION ********************
+    // $dsn = "mysql:host=localhost:3306;dbname=seewtas";
+    // $username = "root";
+    // $password = "";
+    $dsn = "mysql:host=localhost:8889;dbname=seewtas";
+    $username = "root";
+    $password = "root";
+
+    $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
+    $pdo = new PDO($dsn, $username, $password, $options);
+
+
+
+    // ******************** DUMP and DIE ********************
     function dd($value)
     {
         echo "<br><pre>";
@@ -7,16 +30,167 @@
 
         // die();
     }
+
+    // ******************** CALLCHATGPT ********************
+    function callChatGPT_OriginalReviews($open_ai, $reviewsForGPT)
+    {
+        $validResponse = false;
+
+        while(!$validResponse) {
+
+            $fullChatGPTMessage = "Take this List of reviews: \n\n";
+            $fullChatGPTMessage .= $reviewsForGPT;
+            $fullChatGPTMessage .= "Now, Create a perfect valid JSON object with the following keys: \n\n";
+            $fullChatGPTMessage .= "key named 'pros'. This key should be an array. And should contain a detailed summary of the POSITIVE points of the product, and should not have more than 20 items. \n\n";
+            $fullChatGPTMessage .= "key named 'cons'. This key should be an array. And should contain a detailed summary of the NEGATIVE points of the product, and should not have more than 20 items. \n\n";
+            $fullChatGPTMessage .= "key named 'prosTotal'. This key should be a number. And should contain the number of POSITIVE reviews. \n\n";
+            $fullChatGPTMessage .= "key named 'consTotal'. This key should be a number. And should contain the number of NEGATIVE reviews. \n\n";
+            $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
+
+            dd("*************************************************************************************************************");
+            dd("********************************************** CALLING CHATGPT **********************************************");
+            dd("*************************************************************************************************************");
+            dd($fullChatGPTMessage);
+
+            $complete = $open_ai->chat([
+                'model' => 'gpt-3.5-turbo',
+                'messages' => [
+                    [
+                        "role" => "system",
+                        "content" =>  "You are going to summarize reviews."
+                    ],
+                    [
+                        "role" => "user",
+                        "content" => $fullChatGPTMessage
+                    ],
+                ],
+                'temperature' => 0.8,
+                'max_tokens' => 1000,
+                'frequency_penalty' => 0,
+                'presence_penalty' => 0,
+            ]);
+
+            // getting data from the chatGPT return
+            $json_data = json_decode($complete, true);
+            $content = json_decode($json_data["choices"][0]["message"]["content"], true);
+
+            if ( $complete && array_key_exists('error', $json_data) ) {
+                dd("****************************** VALID ERROR from CHATGPT (probably max TOKENS) ***********************************");
+                dd($complete);
+
+                $validResponse = true;
+                return null;
+            }
+            else if ( 
+                    $complete && 
+                    !array_key_exists('error', $json_data) &&
+                    array_key_exists('pros', $content) &&
+                    array_key_exists('cons', $content) &&
+                    array_key_exists('prosTotal', $content) &&
+                    array_key_exists('consTotal', $content)
+                ) 
+            {
+                dd("****************************** GOOD RESPONSE from CHATGPT and VALID return for the APP  ***********************************");
+                dd($complete);
+
+                $validResponse = true;
+                return $content;
+            }
+            else {
+                dd("****************************** GOOD RESPONSE from CHATGPT BUT NOT VALID return for the APP  - LET'S TRY AGAIN ***********************************");
+                dd($complete);
+
+                $validResponse = false;
+            }
+        }
+    }
+
+
+    function callChatGPT_ConsolidateReviews( $open_ai, $content, $consolidated )
+    {
+        dd('***** inside callChatGPT_ConsolidateReviews');
+        dd('***** content');
+        dd($content);
+        dd('***** consolidated');
+        dd($consolidated);
+
+        $validResponse = false;
+
+        while(!$validResponse) {
+
+            $reviewsForGPT = "";
+            foreach ($content as $comment) {
+                // appending to the list of reviews
+                $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
+            }
+            foreach ($consolidated as $comment) {
+                // appending to the list of reviews
+                $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
+            }
+
+            $fullChatGPTMessage = "Take this List of reviews: \n\n";
+            $fullChatGPTMessage .= $reviewsForGPT;
+            $fullChatGPTMessage .= "Now, Create a perfect valid JSON object with the following key: \n\n";
+            $fullChatGPTMessage .= "key named 'consolidated'. This key should be an array. And should contain a summary of the List of reviews, and should not have more than 20 items. \n\n";
+            $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
+
+            dd($fullChatGPTMessage);
+
+            $complete = $open_ai->chat([
+                'model' => 'gpt-3.5-turbo',
+                'messages' => [
+                    [
+                        "role" => "system",
+                        "content" => "You are going to summarize reviews."
+                    ],
+                    [
+                        "role" => "user",
+                        "content" => $fullChatGPTMessage
+                    ],
+                ],
+                'temperature' => 0.8,
+                'max_tokens' => 1000,
+                'frequency_penalty' => 0,
+                'presence_penalty' => 0,
+            ]);
+
+            // getting data from the chatGPT return
+            $json_data = json_decode($complete, true);
+            $content = json_decode($json_data["choices"][0]["message"]["content"], true);
+
+            if ( $complete && array_key_exists('error', $json_data) ) {
+                dd("****************************** VALID ERROR from CHATGPT (probably max TOKENS) ***********************************");
+                dd($complete);
+
+                $validResponse = true;
+                return null;
+            }
+            else if ( 
+                $complete && !array_key_exists('error', $json_data) && 
+                array_key_exists('consolidated', $content)
+                )
+            {
+                dd("****************************** GOOD RESPONSE from CHATGPT and VALID return for the APP  ***********************************");
+                dd($complete);
+
+                $validResponse = true;
+                return $content;
+            }
+            else {
+                dd("****************************** GOOD RESPONSE from CHATGPT BUT NOT VALID return for the APP  - LET'S TRY AGAIN ***********************************");
+                dd($complete);
+
+                $validResponse = false;
+            }
+        }
+    }
+
 ?>
 
 
 <?php
 
-    // ****************** DECLARING ChatGPT API
-    require __DIR__ . '/../../vendor/autoload.php'; // remove this line if you use a PHP Framework.
-    use Orhanerday\OpenAi\OpenAi;
-    $open_ai_key = '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';
-    $open_ai = new OpenAi($open_ai_key);
+    
 
 
 
@@ -25,11 +199,7 @@
     // MYSQL -------------------------------------------------------------------------
     //select the list of products from the MySQL
     // Connect to the database using PDO
-    $dsn = "mysql:host=localhost:3306;dbname=seewtas";
-    $username = "root";
-    $password = "";
-    $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
-    $pdo = new PDO($dsn, $username, $password, $options);
+   
 
     // Prepare the SELECT statement
     // $sql = "SELECT FROM mytable WHERE id = ?";
@@ -97,20 +267,10 @@
             dd("********************************* BESTBUY - Page: " . $page);
 
             foreach ($json_data['reviews'] as $index => $review) {
-                // ********************************************************************************************
-                // ********************************************************************************************
-                // ********************************************************************************************
-                // ********************************************************************************************
-                // ********************************************************************************************
-                // ********************************************************************************************
-                // ********************************************************************************************
-                // PRECISA CHECAR se tem comment, porque alguns review nao tem comment
-                // ainda gerando JSON invalidos
-                // ********************************************************************************************
-                // ********************************************************************************************
-                // ********************************************************************************************
-                $reviews[] = $review['comment'];
-                dd($review['comment']);
+                if ( array_key_exists("comment", $review) ) {
+                    $reviews[] = $review['comment'];
+                    dd($review['comment']);
+                }
             }
 
             // check the current page
@@ -156,241 +316,69 @@
 
 
         
-        $fullPros = [];
-        $fullCons = [];
-        $fullTotalReviews = 0;
-        $fullPositiveReviews = 0;
-        $fullNegativeReviews = 0;
-
-        $totalReviews = count($reviews);
+        $consolidatedPros = [];
+        $consolidatedCons = [];
+        $consolidatedProsTotal = 0;
+        $consolidatedConsTotal = 0;
 
         $numberReviewsForGPT = 1;
         $reviewsForGPT = "";
 
         foreach ($reviews as $index => $comment) {
 
-
-
             // cleaning the review
             $comment = str_replace("'", ' ', $comment);
             $comment = str_replace('"', ' ', $comment);
             $comment = str_replace(array("\r\n", "\r", "\n"), '', $comment);
 
+
             // appending to the list of reviews
             $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
 
 
+            if (($numberReviewsForGPT == 20) || ($index == count($reviews) - 1)) {
 
-            if (($numberReviewsForGPT == 20) || ($index == $totalReviews - 1)) {
+                dd("****************************** STARTING PROCESSING the BATCH ***********************************");
 
-                // ****************** chatGPT - BEGIN
+                // ******************** CALLCHATGPT ********************
+                $content = callChatGPT_OriginalReviews($open_ai, $reviewsForGPT);
 
-                $fullChatGPTMessage = "Take this List of reviews: \n\n";
-                $fullChatGPTMessage .= $reviewsForGPT;
-                $fullChatGPTMessage .= "Now, Create a perfect valid JSON object with the following keys: \n\n";
-                $fullChatGPTMessage .= "key 'pros'. This should be an array. And should contain a detailed summary of the POSITIVE points of the product, and should not have more than 20 items. \n\n";
-                $fullChatGPTMessage .= "key 'cons'. This should be an array. And should contain a detailed summary of the NEGATIVE points of the product, and should not have more than 20 items. \n\n";
-                $fullChatGPTMessage .= "key 'total_reviews'. This should be a number. And should contain the TOTAL number of items in the list of reviews. \n\n";
-                $fullChatGPTMessage .= "key 'positive_reviews'. This should be a number. And should contain the number of POSITIVE reviews. \n\n";
-                $fullChatGPTMessage .= "key 'negative_reviews'. This should be a number. And should contain the number of NEGATIVE reviews. \n\n";
-                $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
-
-                dd("*************************************************************************************************************");
-                dd("********************************************** CALLING CHATGPT **********************************************");
-                dd("*************************************************************************************************************");
-                dd($fullChatGPTMessage);
-
-                $complete = $open_ai->chat([
-                    'model' => 'gpt-3.5-turbo',
-                    'messages' => [
-                        [
-                            "role" => "system",
-                            "content" =>  "You are going to summarize reviews."
-                        ],
-                        [
-                            "role" => "user",
-                            "content" => $fullChatGPTMessage
-                        ],
-                    ],
-                    'temperature' => 1.0,
-                    'max_tokens' => 400,
-                    'frequency_penalty' => 0,
-                    'presence_penalty' => 0,
-                ]);
-
-                dd($complete);
-
-                // getting data from the chatGPT return
-                $json_data = json_decode($complete, true);
-                $content = json_decode($json_data["choices"][0]["message"]["content"], true);
-
-                // ****************** chatGPT - END
-
-
-                    
-                if ( $complete !== false && !array_key_exists('error', $json_data) && $content["pros"] && $content["cons"] && $content["total_reviews"] && $content["positive_reviews"] && $content["negative_reviews"]) {
-                    dd("****************************** partial pros/cons ***********************************");
+                if ( $content ) {
+                    dd("****************************** pros/cons from the BATCH ***********************************");
                     dd($content["pros"]);
                     dd($content["cons"]);
-                    dd($content["total_reviews"]);
-                    dd($content["positive_reviews"]);
-                    dd($content["negative_reviews"]);
+                    dd($content["prosTotal"]);
+                    dd($content["consTotal"]);
 
 
-
+                    dd("****************************** STARTING CONSOLIDATING ***********************************");
                     // **********************************************************************************
                     // ****************** CONSOLIDATE
                     // **********************************************************************************
 
+                     $consolidatedProsTotal = $consolidatedProsTotal + $content["prosTotal"];
+                     $consolidatedConsTotal = $consolidatedConsTotal + $content["consTotal"];
 
-
-                    // **********************************************************************************
-                    // ****************** TOTALS
-                    // **********************************************************************************
-                     $fullTotalReviews = $fullTotalReviews + $content["total_reviews"];
-                     $fullPositiveReviews = $fullPositiveReviews + $content["positive_reviews"];
-                     $fullNegativeReviews = $fullNegativeReviews + $content["negative_reviews"];
-
-
-
-                    // **********************************************************************************
-                    // ****************** summarize final PROS reviews
-                    // **********************************************************************************
-
-                    // ****************** chatGPT - BEGIN
-                    $validResponse = false;
-                    while(!$validResponse) {
-
-                        $reviewsForGPT = "";
-                        foreach ($content["pros"] as $index => $comment) {
-                            // appending to the list of reviews
-                            $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
-                        }
-                        foreach ($fullPros as $index => $comment) {
-                            // appending to the list of reviews
-                            $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
-                        }
-
-                        $fullChatGPTMessage = "Take this List of reviews: \n\n";
-                        $fullChatGPTMessage .= $reviewsForGPT;
-                        $fullChatGPTMessage .= "Now, Create a perfect valid JSON object with the following keys: \n\n";
-                        $fullChatGPTMessage .= "key 'summaryPros'. This should be an array. And should contain a detailed summary of the List of reviews, and should not have more than 20 items. \n\n";
-                        $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
-
-                        dd($fullChatGPTMessage);
-
-                        $complete = $open_ai->chat([
-                            'model' => 'gpt-3.5-turbo',
-                            'messages' => [
-                                [
-                                    "role" => "system",
-                                    "content" => "You are going to summarize reviews."
-                                ],
-                                [
-                                    "role" => "user",
-                                    "content" => $fullChatGPTMessage
-                                ],
-                            ],
-                            'temperature' => 1.0,
-                            'max_tokens' => 400,
-                            'frequency_penalty' => 0,
-                            'presence_penalty' => 0,
-                        ]);
-
-                        dd($complete);
-
-                        // getting data from the chatGPT return
-                        $json_data = json_decode($complete, true);
-                        $contentSummary = json_decode($json_data["choices"][0]["message"]["content"], true);
-
-                        $summaryPros = [];
-                        if ($complete !== false && !array_key_exists('error', $json_data) && $contentSummary["summaryPros"]) {
-                            $summaryPros = $contentSummary["summaryPros"];
-                            $validResponse = true;
-                        }
-                        else {
-                            dd("*********************** GOT an error Let's RETRY ***********************");
-                        }
+                    // ****************** consolidate PROS reviews
+                    dd('***** consolidate PROS reviews');
+                    $consolidatedReviews = callChatGPT_ConsolidateReviews ($open_ai, $content["pros"], $consolidatedPros);
+                    if ( $consolidatedReviews ) {
+                        $consolidatedPros = $consolidatedReviews["consolidated"];
                     }
-                    dd($summaryPros);
-                    $fullPros = $summaryPros;
-                    // ****************** chatGPT - END
-
-
-
-                    // **********************************************************************************
-                    // ****************** summarize final CONS reviews
-                    // **********************************************************************************
-
-                    // ****************** chatGPT - BEGIN
-                    $validResponse = false;
-                    while(!$validResponse) {
-
-                        $reviewsForGPT = "";
-                        foreach ($content["cons"] as $index => $comment) {
-                            // appending to the list of reviews
-                            $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
-                        }
-                        foreach ($fullCons as $index => $comment) {
-                            // appending to the list of reviews
-                            $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
-                        }
-
-                        $fullChatGPTMessage = "Take this List of reviews: \n\n";
-                        $fullChatGPTMessage .= $reviewsForGPT;
-                        $fullChatGPTMessage .= "Now, Create a perfect valid JSON object with the following keys: \n\n";
-                        $fullChatGPTMessage .= "key 'summaryCons'. This should be an array. And should contain a detailed summary of the List of reviews, and should not have more than 20 items. \n\n";
-                        $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
-
-                        dd($fullChatGPTMessage);
-
-                        $complete = $open_ai->chat([
-                            'model' => 'gpt-3.5-turbo',
-                            'messages' => [
-                                [
-                                    "role" => "system",
-                                    "content" => "You are going to summarize reviews."
-                                ],
-                                [
-                                    "role" => "user",
-                                    "content" => $fullChatGPTMessage
-                                ],
-                            ],
-                            'temperature' => 1.0,
-                            'max_tokens' => 400,
-                            'frequency_penalty' => 0,
-                            'presence_penalty' => 0,
-                        ]);
-
-                        dd($complete);
-
-                        // getting data from the chatGPT return
-                        $json_data = json_decode($complete, true);
-                        $contentSummary = json_decode($json_data["choices"][0]["message"]["content"], true);
-
-                        $summaryCons = [];
-                        if ( $complete !== false && !array_key_exists('error', $json_data) && $contentSummary["summaryCons"]) {
-                            $summaryCons = $contentSummary["summaryCons"];
-                            $validResponse = true;
-                        }
-                        else {
-                            dd("*********************** GOT an error Let's RETRY ***********************");
-                        }
+                    // ****************** consolidate CONS reviews
+                    dd('***** consolidate CONS reviews');
+                    $consolidatedReviews = callChatGPT_ConsolidateReviews ($open_ai, $content["cons"], $consolidatedCons);
+                    if ( $consolidatedReviews ) {
+                        $consolidatedCons = $consolidatedReviews["consolidated"];
                     }
-                    dd($summaryCons);
-                    $fullCons = $summaryCons;
-                    // ****************** chatGPT - END
-
                 }
                 else {
-                    dd("****************************** partial pros/cons  - FOUND ERROS ***********************************");
+                    dd("****************************** ERROS PROCESSING the BATCH ***********************************");
                 }
-
 
 
                 $numberReviewsForGPT = 0;
                 $reviewsForGPT = "";
-
             }
 
             $numberReviewsForGPT = $numberReviewsForGPT + 1;
@@ -399,50 +387,51 @@
 
 
 
+        dd("************************************************************************************************");
+        dd("****************************** FINAL CONSOLIDATED pros/cons ***********************************");
+        dd("************************************************************************************************");
+        dd($consolidatedPros);
+        dd($consolidatedCons);
+        dd($consolidatedProsTotal );
+        dd($consolidatedConsTotal );
 
-        dd("****************************** full pros/cons ***********************************");
-        dd($fullPros);
-        dd($fullCons);
-        dd($fullTotalReviews);
-        dd($fullPositiveReviews );
-        dd($fullNegativeReviews );
 
 
 
         // ***************************** INSERT INTO SQL
-        $fullProsAArray = json_encode (
+        $consolidatedProsAArray = json_encode (
             array(
-                "summaryPros" => $fullPros
+                "pros" => $consolidatedPros
             )
         );
-        $fullConsAArray = json_encode (
+        $consolidatedConsAArray = json_encode (
             array(
-                "summaryCons" => $fullCons
+                "cons" => $consolidatedCons
             )
         );
 
         // Prepare the INSERT statement
         $stmt = $pdo->prepare("
         UPDATE reviews set 
-        summary_pros = :summary_pros, 
-        summary_cons = :summary_cons, 
-        total_pros = :total_pros,
-        total_cons = :total_cons
+        pros = :pros, 
+        cons = :cons, 
+        pros_total = :pros_total,
+        cons_total = :cons_total
         where status IS NULL and path = :productPath
         ");
 
         // Bind the JSON object to the parameter
-        $stmt->bindParam(':summary_pros', $fullProsAArray);
-        $stmt->bindParam(':summary_cons', $fullConsAArray);
-        $stmt->bindParam(':total_pros', $fullPositiveReviews);
-        $stmt->bindParam(':total_cons', $fullNegativeReviews);
+        $stmt->bindParam(':pros', $consolidatedProsAArray);
+        $stmt->bindParam(':cons', $consolidatedConsAArray);
+        $stmt->bindParam(':pros_total', $consolidatedProsTotal);
+        $stmt->bindParam(':cons_total', $consolidatedConsTotal);
         $stmt->bindParam(':productPath', $productPath);
 
         // Execute the statement
         $stmt->execute();
 
-
         // die();
+
 
 
 
