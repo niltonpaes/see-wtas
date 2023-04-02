@@ -1,20 +1,18 @@
 <?php
 
-    
     // ******************** CHATGPT CONFIGURATION ********************
     require __DIR__ . '/../../vendor/autoload.php'; // remove this line if you use a PHP Framework.
     use Orhanerday\OpenAi\OpenAi;
     $open_ai_key = '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';
     $open_ai = new OpenAi($open_ai_key);
 
-
     // ******************** MYSQL CONFIGURATION ********************
-    // $dsn = "mysql:host=localhost:3306;dbname=seewtas";
-    // $username = "root";
-    // $password = "";
-    $dsn = "mysql:host=localhost:8889;dbname=seewtas";
+    $dsn = "mysql:host=localhost:3306;dbname=seewtas";
     $username = "root";
-    $password = "root";
+    $password = "";
+    // $dsn = "mysql:host=localhost:8889;dbname=seewtas";
+    // $username = "root";
+    // $password = "root";
 
     $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
     $pdo = new PDO($dsn, $username, $password, $options);
@@ -38,14 +36,16 @@
 
         while(!$validResponse) {
 
-            $fullChatGPTMessage = "Take this List of reviews: \n\n";
+            $fullChatGPTMessage = "Take this list of reviews of a product: \n\n";
             $fullChatGPTMessage .= $reviewsForGPT;
-            $fullChatGPTMessage .= "Now, Create a perfect valid JSON object with the following keys: \n\n";
+            $fullChatGPTMessage .= "Exclusively based on the list create a perfect valid JSON object with the following keys: \n\n";
+            $fullChatGPTMessage .= "key named 'numberOfReviews'. How many reviews were there in the list? \n\n";
+            $fullChatGPTMessage .= "key named 'prosTotal'. How many positive reviews were there in the list? \n\n";
+            $fullChatGPTMessage .= "key named 'consTotal'. How many negative reviews were there in the list? \n\n";
+            $fullChatGPTMessage .= "key named 'indeterminateTotal'. How many indeterminate reviews were there in the list? \n\n";
             $fullChatGPTMessage .= "key named 'pros'. This key should be an array. And should contain a detailed summary of the POSITIVE points of the product, and should not have more than 20 items. \n\n";
             $fullChatGPTMessage .= "key named 'cons'. This key should be an array. And should contain a detailed summary of the NEGATIVE points of the product, and should not have more than 20 items. \n\n";
-            $fullChatGPTMessage .= "key named 'prosTotal'. This key should be a number. And should contain the number of POSITIVE reviews. \n\n";
-            $fullChatGPTMessage .= "key named 'consTotal'. This key should be a number. And should contain the number of NEGATIVE reviews. \n\n";
-            $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
+            $fullChatGPTMessage .= "The response MUST have just the JSON object, NOTHING ELSE. \n\n";
 
             dd("*************************************************************************************************************");
             dd("********************************************** CALLING CHATGPT **********************************************");
@@ -70,19 +70,20 @@
                 'presence_penalty' => 0,
             ]);
 
+            dd($complete);
+
             // getting data from the chatGPT return
             $json_data = json_decode($complete, true);
             $content = json_decode($json_data["choices"][0]["message"]["content"], true);
 
             if ( $complete && array_key_exists('error', $json_data) ) {
                 dd("****************************** VALID ERROR from CHATGPT (probably max TOKENS) ***********************************");
-                dd($complete);
-
                 $validResponse = true;
                 return null;
             }
             else if ( 
                     $complete && 
+                    $content &&
                     !array_key_exists('error', $json_data) &&
                     array_key_exists('pros', $content) &&
                     array_key_exists('cons', $content) &&
@@ -91,15 +92,11 @@
                 ) 
             {
                 dd("****************************** GOOD RESPONSE from CHATGPT and VALID return for the APP  ***********************************");
-                dd($complete);
-
                 $validResponse = true;
                 return $content;
             }
             else {
                 dd("****************************** GOOD RESPONSE from CHATGPT BUT NOT VALID return for the APP  - LET'S TRY AGAIN ***********************************");
-                dd($complete);
-
                 $validResponse = false;
             }
         }
@@ -128,11 +125,11 @@
                 $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
             }
 
-            $fullChatGPTMessage = "Take this List of reviews: \n\n";
+            $fullChatGPTMessage = "Take this list of reviews of a product: \n\n";
             $fullChatGPTMessage .= $reviewsForGPT;
-            $fullChatGPTMessage .= "Now, Create a perfect valid JSON object with the following key: \n\n";
+            $fullChatGPTMessage .= "Exclusively based on the list create a perfect valid JSON object with the following key: \n\n";
             $fullChatGPTMessage .= "key named 'consolidated'. This key should be an array. And should contain a summary of the List of reviews, and should not have more than 20 items. \n\n";
-            $fullChatGPTMessage .= "The responde MUST have just the JSON object, NOTHING ELSE. \n\n";
+            $fullChatGPTMessage .= "The response MUST have just the JSON object, NOTHING ELSE. \n\n";
 
             dd($fullChatGPTMessage);
 
@@ -154,45 +151,37 @@
                 'presence_penalty' => 0,
             ]);
 
+            dd($complete);
+
             // getting data from the chatGPT return
             $json_data = json_decode($complete, true);
             $content = json_decode($json_data["choices"][0]["message"]["content"], true);
 
             if ( $complete && array_key_exists('error', $json_data) ) {
                 dd("****************************** VALID ERROR from CHATGPT (probably max TOKENS) ***********************************");
-                dd($complete);
-
                 $validResponse = true;
                 return null;
             }
             else if ( 
-                $complete && !array_key_exists('error', $json_data) && 
+                $complete && 
+                $content && 
+                !array_key_exists('error', $json_data) && 
                 array_key_exists('consolidated', $content)
                 )
             {
                 dd("****************************** GOOD RESPONSE from CHATGPT and VALID return for the APP  ***********************************");
-                dd($complete);
-
                 $validResponse = true;
                 return $content;
             }
             else {
                 dd("****************************** GOOD RESPONSE from CHATGPT BUT NOT VALID return for the APP  - LET'S TRY AGAIN ***********************************");
-                dd($complete);
-
                 $validResponse = false;
             }
         }
     }
-
 ?>
 
-
 <?php
-
-    
-
-
 
     // ****************** GET REVIEWS FROM BESTBUY
 
@@ -203,7 +192,7 @@
 
     // Prepare the SELECT statement
     // $sql = "SELECT FROM mytable WHERE id = ?";
-    $sql = "SELECT * FROM reviews where status <> 'deleted' or status IS NULL";
+    $sql = "SELECT * FROM reviews where status = 'active'";
 
     $stmt = $pdo->prepare($sql);
 
@@ -238,6 +227,10 @@
             // dd(sprintf($productURL, $page));
             // curl_setopt($curl, CURLOPT_URL, "https://www.bestbuy.ca/api/reviews/v2/products/16157519/reviews?source=all&lang=en-CA&pageSize=10&page=1&sortBy=date&sortDir=desc");
             curl_setopt($curl, CURLOPT_URL, sprintf($productURL, $page));
+
+            
+            // wait some time just to be under the radar for anti scrapping sites
+            sleep(rand(10, 60));
             
 
             // return the transfer as a string, also with setopt()
@@ -417,7 +410,7 @@
         cons = :cons, 
         pros_total = :pros_total,
         cons_total = :cons_total
-        where status IS NULL and path = :productPath
+        where status = 'active' and path = :productPath
         ");
 
         // Bind the JSON object to the parameter
