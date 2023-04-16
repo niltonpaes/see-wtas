@@ -1,20 +1,22 @@
 <?php require base_path('views/partials/head.php') ?>
 
 <?php
-// Connect to the database using PDO
-$dsn = "mysql:host=localhost:3306;dbname=seewtas";
-$username = "root";
-$password = "";
-// $dsn = "mysql:host=localhost:8889;dbname=seewtas";
+// ******************** MYSQL CONFIGURATION ********************
+// --- PC 
+// $dsn = "mysql:host=localhost:3306;dbname=seewtas";
 // $username = "root";
-// $password = "root";
+// $password = "";
+// --- MAC
+$dsn = "mysql:host=localhost:8889;dbname=seewtas";
+$username = "root";
+$password = "root";
 
 $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 $pdo = new PDO($dsn, $username, $password, $options);
 
 // Prepare the SELECT statement
 // $sql = "SELECT  FROM mytable WHERE id = ?";
-$sql = "SELECT * FROM reviews where status='active'";
+$sql = "SELECT * FROM reviews where status_ok  is true";
 
 $stmt = $pdo->prepare($sql);
 
@@ -76,14 +78,15 @@ if (!$result) {
 				</div> -->
 
 				<div class="col">
-					<div class="card shadow-sm">
+					<div class="card shadow-sm h-100">
 						<div class="card-body">
 							<div>
-								<blockquote class="twitter-tweet">
+								<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Cash Money goes Flying after a Renegade Cop Eliminates a Woman with &#39;The Rock Bottom&#39; during a Chaotic Rumble... <a href="https://t.co/SJCmIoIh2R">pic.twitter.com/SJCmIoIh2R</a></p>&mdash; Fight Haven (@FightHaven) <a href="https://twitter.com/FightHaven/status/1642874603545706498?ref_src=twsrc%5Etfw">April 3, 2023</a></blockquote>
+								<!-- <blockquote class="twitter-tweet">
 									<p lang="pt" dir="ltr">Estão com vergonha de postar o gol da classificação????<br />Posta aí ????</p>
 									&mdash; Ronaldo Giovaneli (@Ronaldo601) <a href="https://twitter.com/Ronaldo601/status/1637564460532482048?ref_src=twsrc%5Etfw">March 19, 2023</a>
 								</blockquote>
-								<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+								<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
 							</div>
 
 							<div class="d-flex justify-content-between align-items-center">
@@ -99,8 +102,8 @@ if (!$result) {
 				<?php foreach ($result as $item) : ?>
 
 					<div class="col">
-						<div class="card shadow-sm">
-							<img class="card-img-top" width="100%" src="<?= $item['image'] ?>" class="img-fluid" alt="..." />
+						<div class="card shadow-sm h-100">
+							<img class="card-img-top p-3 p-md-4" width="100%" src="<?= $item['image'] ?>" class="img-fluid" alt="..." />
 							<div class="card-body">
 								<p class="card-text"><?= $item['product_title'] ?></p>
 
@@ -117,10 +120,34 @@ if (!$result) {
 
 				<?php endforeach; ?>
 
+				<div class="col">
+					<div class="card shadow-sm h-100">
+						<div class="card-body">
+							<div>
+								<!-- <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Cash Money goes Flying after a Renegade Cop Eliminates a Woman with &#39;The Rock Bottom&#39; during a Chaotic Rumble... <a href="https://t.co/SJCmIoIh2R">pic.twitter.com/SJCmIoIh2R</a></p>&mdash; Fight Haven (@FightHaven) <a href="https://twitter.com/FightHaven/status/1642874603545706498?ref_src=twsrc%5Etfw">April 3, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
+								<!-- <blockquote class="twitter-tweet">
+									<p lang="pt" dir="ltr">Estão com vergonha de postar o gol da classificação????<br />Posta aí ????</p>
+									&mdash; Ronaldo Giovaneli (@Ronaldo601) <a href="https://twitter.com/Ronaldo601/status/1637564460532482048?ref_src=twsrc%5Etfw">March 19, 2023</a>
+								</blockquote>
+								<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
+								<blockquote class="twitter-tweet"><p lang="pt" dir="ltr">O cancelamento da Feira Israelense na UNICAMP por conta de manifestações contrárias é um episódio muito triste. Inviabilizaram um evento só pela participação de Israel. Isso é inaceitável. Há muito tempo nossas Universidades deixaram de ser ambientes democráticos.<br><br>Não é de hoje…</p>&mdash; Kim Kataguiri (@KimKataguiri) <a href="https://twitter.com/KimKataguiri/status/1643242411542425605?ref_src=twsrc%5Etfw">April 4, 2023</a></blockquote> 
+							</div>
+
+							<div class="d-flex justify-content-between align-items-center">
+								<div class="btn-group">
+									<button type="button" class="btn btn-sm btn-outline-secondary">View</button>
+								</div>
+								<small class="text-muted">9 mins</small>
+							</div>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>
 </main>
 
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <?php require base_path('views/partials/footer.php') ?>

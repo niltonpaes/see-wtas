@@ -7,12 +7,14 @@
     $open_ai = new OpenAi($open_ai_key);
 
     // ******************** MYSQL CONFIGURATION ********************
-    $dsn = "mysql:host=localhost:3306;dbname=seewtas";
-    $username = "root";
-    $password = "";
-    // $dsn = "mysql:host=localhost:8889;dbname=seewtas";
+    // --- PC
+    // $dsn = "mysql:host=localhost:3306;dbname=seewtas";
     // $username = "root";
-    // $password = "root";
+    // $password = "";
+    // --- MAC
+    $dsn = "mysql:host=localhost:8889;dbname=seewtas";
+    $username = "root";
+    $password = "root";
 
     $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
     $pdo = new PDO($dsn, $username, $password, $options);
@@ -43,8 +45,8 @@
             $fullChatGPTMessage .= "key named 'prosTotal'. How many positive reviews were there in the list? \n\n";
             $fullChatGPTMessage .= "key named 'consTotal'. How many negative reviews were there in the list? \n\n";
             $fullChatGPTMessage .= "key named 'indeterminateTotal'. How many indeterminate reviews were there in the list? \n\n";
-            $fullChatGPTMessage .= "key named 'pros'. This key should be an array. And should contain a detailed summary of the POSITIVE points of the product, and should not have more than 20 items. \n\n";
-            $fullChatGPTMessage .= "key named 'cons'. This key should be an array. And should contain a detailed summary of the NEGATIVE points of the product, and should not have more than 20 items. \n\n";
+            $fullChatGPTMessage .= "key named 'pros'. This key should be an array. And should contain a list of the most relevants POSITIVE/PROS points of the product, and should not have more than 20 items. \n\n";
+            $fullChatGPTMessage .= "key named 'cons'. This key should be an array. And should contain a list of the most relevants NEGATIVE/CONS points of the product, and should not have more than 20 items. \n\n";
             $fullChatGPTMessage .= "The response MUST have just the JSON object, NOTHING ELSE. \n\n";
 
             dd("*************************************************************************************************************");
@@ -103,24 +105,39 @@
     }
 
 
-    function callChatGPT_ConsolidateReviews( $open_ai, $content, $consolidated )
+    function callChatGPT_ConsolidateReviews( $open_ai, $contentIn, $consolidatedIn )
     {
         dd('***** inside callChatGPT_ConsolidateReviews');
         dd('***** content');
-        dd($content);
+        dd($contentIn);
         dd('***** consolidated');
-        dd($consolidated);
+        dd($consolidatedIn);
+
+        if ( empty($contentIn) && empty($consolidatedIn) ){
+            dd('***** nothing to consolidate ********************');
+            return ["consolidated" => []];
+        }
+
+        if ( !empty($contentIn) && empty($consolidatedIn) ){
+            dd('***** empty consolidatedIn returning contentIn ********************');
+            return ["consolidated" => $contentIn];
+        }
+
+        if ( empty($contentIn) && !empty($consolidatedIn) ){
+            dd('***** empty contentIn returning consolidatedIn ********************');
+            return ["consolidated" => $consolidatedIn];
+        }
 
         $validResponse = false;
 
         while(!$validResponse) {
 
             $reviewsForGPT = "";
-            foreach ($content as $comment) {
+            foreach ($contentIn as $comment) {
                 // appending to the list of reviews
                 $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
             }
-            foreach ($consolidated as $comment) {
+            foreach ($consolidatedIn as $comment) {
                 // appending to the list of reviews
                 $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
             }
@@ -182,8 +199,6 @@
 ?>
 
 <?php
-
-    // ****************** GET REVIEWS FROM BESTBUY
 
     // MYSQL -------------------------------------------------------------------------
     //select the list of products from the MySQL
@@ -261,7 +276,15 @@
 
             foreach ($json_data['reviews'] as $index => $review) {
                 if ( array_key_exists("comment", $review) ) {
-                    $reviews[] = $review['comment'];
+
+                    // preparing/cleaning the text
+                    $comment = substr($review['comment'], 0, 1800);
+                    $comment = str_replace("'", ' ', $comment);
+                    $comment = str_replace('"', ' ', $comment);
+                    $comment = str_replace(array("\r\n", "\r", "\n"), '', $comment);
+
+                    $reviews[] = $comment;
+
                     dd($review['comment']);
                 }
             }
@@ -274,7 +297,7 @@
 
             // check if the loop should keepScraping or not
             // force an end
-            $totalPages = 3;
+            $totalPages = 5;
             if ($currentPage == $totalPages) {
                 $keepScraping = false;
             } else {
@@ -319,12 +342,6 @@
 
         foreach ($reviews as $index => $comment) {
 
-            // cleaning the review
-            $comment = str_replace("'", ' ', $comment);
-            $comment = str_replace('"', ' ', $comment);
-            $comment = str_replace(array("\r\n", "\r", "\n"), '', $comment);
-
-
             // appending to the list of reviews
             $reviewsForGPT = $reviewsForGPT . "- " . $comment . "\n\n";
 
@@ -354,13 +371,13 @@
 
                     // ****************** consolidate PROS reviews
                     dd('***** consolidate PROS reviews');
-                    $consolidatedReviews = callChatGPT_ConsolidateReviews ($open_ai, $content["pros"], $consolidatedPros);
+                    $consolidatedReviews = callChatGPT_ConsolidateReviews($open_ai, $content["pros"], $consolidatedPros);
                     if ( $consolidatedReviews ) {
                         $consolidatedPros = $consolidatedReviews["consolidated"];
                     }
                     // ****************** consolidate CONS reviews
                     dd('***** consolidate CONS reviews');
-                    $consolidatedReviews = callChatGPT_ConsolidateReviews ($open_ai, $content["cons"], $consolidatedCons);
+                    $consolidatedReviews = callChatGPT_ConsolidateReviews($open_ai, $content["cons"], $consolidatedCons);
                     if ( $consolidatedReviews ) {
                         $consolidatedCons = $consolidatedReviews["consolidated"];
                     }

@@ -6,7 +6,7 @@
 		<meta name="description" content="" />
 		<meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
 		<meta name="generator" content="Hugo 0.108.0" />
-		<title>Album example · Bootstrap v5.3</title>
+		<title>See what they are saying AI...</title>
 
 		<link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet" />
 
@@ -118,7 +118,7 @@
 						<img class="rounded-4 logoSize" src="/images/new_logo_1_transp_bg.png" alt="...">
 
 						<div class="d-flex align-items-center">
-							<h1 class="navTitle fw-bolder mb-0 px-0 px-md-2">See what they are saying...</h1>
+							<h1 class="navTitle fw-bolder mb-0 px-0 px-md-2">See what they are saying AI...</h1>
 							<p class="blinking fw-normal mb-0 px-2 px-md-0 h-100">&#9608;</p>
 						</div>
 						
