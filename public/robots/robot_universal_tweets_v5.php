@@ -1,4 +1,11 @@
 <?php
+// apify API
+// task end-point
+// https://api.apify.com/v2/actor-tasks/niltonpa~kimkataguiri-1643242411542425605-full/run-sync-get-dataset-items?token=apify_api_7YCeaeDtENG6R6TlAN783bA1Z6Y3Pg3uTsQv&offset=0&limit=99&fields=full_text&method=POST
+// https://api.apify.com/v2/actor-tasks/niltonpa~kimkataguiri-1643242411542425605-full/run-sync-get-dataset-items?token=apify_api_7YCeaeDtENG6R6TlAN783bA1Z6Y3Pg3uTsQv&fields=full_text&method=POST
+// storage end-point
+// https://api.apify.com/v2/datasets/RWamoTAvghnjrbyj0/items?token=apify_api_7YCeaeDtENG6R6TlAN783bA1Z6Y3Pg3uTsQv&offset=100&limit=99&fields=full_text
+
 
 // product_title
 // product_company
@@ -66,19 +73,6 @@
     }
 
 
-    function randomNoDuplicate($min, $max, $selectedNumbers) {
-        $range = range($min, $max);
-        $diff = array_diff($range, $selectedNumbers);
-    
-        if (count($diff) === 0) {
-            return null; // Return null if all numbers in the range are selected
-        }
-    
-        $randomIndex = array_rand($diff);
-        return $diff[$randomIndex];
-    }
-
-
     // ********************************************************************************* callChatGPT_Translation
     function callChatGPT_Translation($open_ai, $summaryJson)
     {
@@ -108,7 +102,7 @@
                     ],
                 ],
                 'temperature' => 0.8,
-                'max_tokens' => 500,
+                'max_tokens' => 700,
                 'frequency_penalty' => 0,
                 'presence_penalty' => 0,
             ]);
@@ -159,7 +153,7 @@
 
 
     // ********************************************************************************* callChatGPT_Posts
-    function callChatGPT_Posts($open_ai, $posts)
+    function callChatGPT_Posts($open_ai, $posts, $firstPost)
     {
         // prepare the posts for GPT summay
         $postsForGPT = "";
@@ -168,28 +162,42 @@
             $postsForGPT = $postsForGPT . "- " . $post . "\n\n";
         }
 
-
+        
         $validResponse = false;
         $numberRetries = 0;
 
         while(!$validResponse) {
 
             $fullChatGPTMessage = "";
-            $fullChatGPTMessage .= "Take this list of reviews of a product: \n\n";
+            // $fullChatGPTMessage .= "Exclusively based on the Twitter thread below: \n\n";
+            $fullChatGPTMessage .= "Take the Twitter thread below: \n\n";
+
+            $fullChatGPTMessage .= "Initial tweet post: \n\n";
+            $fullChatGPTMessage .= "$firstPost \n\n";
+            $fullChatGPTMessage .= "List of replies: \n\n";
             $fullChatGPTMessage .= $postsForGPT;
-            $fullChatGPTMessage .= "Exclusively based on the list create a perfect/valid JSON object with the following keys: \n\n";
+            $fullChatGPTMessage .= "\n\n";
+
+            $fullChatGPTMessage .= "Exclusively based on the Twitter thread above create a perfect/valid JSON object with the following keys: \n\n";
+            // $fullChatGPTMessage .= "Create a perfect/valid JSON object with the following keys: \n\n";
+
+            // $fullChatGPTMessage .= "key named 'pros' = Create a text analyzing and summarizing what people are saying in the replies that are agreeing with what the initial tweet says. In between 100 to 150 words. \n\n";
+            // $fullChatGPTMessage .= "key named 'cons' = Create a text analyzing and summarizing what people are saying in the replies that are disagreeing with what the initial tweet says. In between 100 to 150 words. \n\n";
+            // $fullChatGPTMessage .= "key named 'neutral' = Create a text analyzing and summarizing what people are saying in the replies that are neither agreeing nor disagreeing with what the initial tweet says. In between 100 to 150 words. \n\n";
+            $fullChatGPTMessage .= "key named 'pros' = Create a text summarizing what people are saying in the replies that are agreeing with what the initial tweet says. In between 600 to 700 characters. \n\n";
+            $fullChatGPTMessage .= "key named 'cons' = Create a text summarizing what people are saying in the replies that are disagreeing with what the initial tweet says. In between 600 to 700 characters. \n\n";
+            $fullChatGPTMessage .= "key named 'neutral' = Create a text summarizing what people are saying in the replies that are neither agreeing nor disagreeing with what the initial tweet says. In between 600 to 700 characters. \n\n";
+
+            // $fullChatGPTMessage .= "key named 'ai' = Based on social, cultural, economic, scientific, historical, and political facts, create a text about other things that should be pointed out that are somehow related with this discussion. Bring additional points, different points of view, etc. In between 50 to 150 words. \n\n";
+            // $fullChatGPTMessage .= "key named 'ai' = Based on social, cultural, economic, scientific, historical, and political facts, create a text about things that should be considered that are somehow related with the initial tweet and all the replies. Bring additional points, different points of view, etc. In between 50 to 150 words. \n\n";
+            // $fullChatGPTMessage .= "key named 'ai' = Create a text on the following topic: What are some social, cultural, economic, scientific, historical, and political factors that have contributed to the topic being discussed on this twitter thread? How have these factors influenced the different perspectives and arguments presented in the discussion? In between 50 to 150 words. \n\n";
+            $fullChatGPTMessage .= "key named 'ai' = Based on social, cultural, economic, scientific, historical, and political facts, create a text adding new perspectives and insights that help illuminate the discussion. In between 600 to 700 characters. \n\n";
+
+            $fullChatGPTMessage .= "key named 'prosTotal' = How many replies are agreeing with what the initial tweet says? \n\n";
+            $fullChatGPTMessage .= "key named 'consTotal' = How many replies are disagreeing with what the initial tweet says? \n\n";
+            $fullChatGPTMessage .= "key named 'neutralTotal' = How many replies are neither agreeing nor disagreeing with what the initial tweet says? \n\n";
             
-            // $fullChatGPTMessage .= "key named 'pros'. This key should be an array. And should contain a summary of the POSITIVE/PROS reviews listing the positive points of the product. It should not have more than 20 items. \n\n";
-            // $fullChatGPTMessage .= "key named 'cons'. This key should be an array. And should contain a summary of the NEGATIVE/CONS reviews listing the negative points of the product. It should not have more than 20 items. \n\n";
-            // $fullChatGPTMessage .= "key named 'neutral'. This key should be an array. And should contain a summary of the indeterminate/neutral reviews listing the indeterminate/neutral points of the product. It should not have more than 20 items. \n\n";
-            $fullChatGPTMessage .= "key named 'pros'. This key should be an array. And should contain the list of the most relevant POSITIVE/PROS points of the product, and should not have more than 20 items. \n\n";
-            $fullChatGPTMessage .= "key named 'cons'. This key should be an array. And should contain the list of the most relevant NEGATIVE/CONS points of the product, and should not have more than 20 items. \n\n";
-            $fullChatGPTMessage .= "key named 'neutral'. This key should be an array. And should contain the list of the most relevant NEUTRAL points of the product, points that are neither positive nor negative , and should not have more than 20 items. \n\n";
-
-            $fullChatGPTMessage .= "key named 'prosTotal'. How many positive reviews were there in the list? \n\n";
-            $fullChatGPTMessage .= "key named 'consTotal'. How many negative reviews were there in the list? \n\n";
-            $fullChatGPTMessage .= "key named 'neutralTotal'. How many indeterminate reviews were there in the list? \n\n";
-
+            $fullChatGPTMessage .= "IMPORTANT: DO NOT USE ABSOLUTE NUMBERS USE PERCENTAGES! \n\n";
             $fullChatGPTMessage .= "The response MUST have just the JSON object, NOTHING ELSE. \n\n";
 
             dd("********************************************************************************* callChatGPT_Posts");
@@ -200,7 +208,7 @@
                 'messages' => [
                     [
                         "role" => "system",
-                        "content" =>  "You are going to summarize product reviews."
+                        "content" =>  "You are going to summarize a twitter thread."
                     ],
                     [
                         "role" => "user",
@@ -208,7 +216,7 @@
                     ],
                 ],
                 'temperature' => 0.8,
-                'max_tokens' => 500,
+                'max_tokens' => 700,
                 'frequency_penalty' => 0,
                 'presence_penalty' => 0,
             ]);
@@ -252,7 +260,8 @@
                     array_key_exists('neutralTotal', $content) &&
                     array_key_exists('pros', $content) &&
                     array_key_exists('cons', $content) &&
-                    array_key_exists('neutral', $content)
+                    array_key_exists('neutral', $content) && 
+                    array_key_exists('ai', $content)
                 ) 
                 {
                     dd("********************************************************************************* GOOD RESPONSE from CHATGPT and VALID return for the APP");
@@ -284,7 +293,7 @@
     // ********************************************************************************* MYSQL - select the records from the MySQL
     // Prepare the SELECT statement
     // $sql = "SELECT FROM mytable WHERE id = ?";
-    $sql = "SELECT * FROM reviews where status_torun is true";
+    $sql = "SELECT * FROM tweets where status_torun is true";
 
     $stmt = $pdo->prepare($sql);
 
@@ -300,17 +309,20 @@
 
     foreach ($result as $post) {
 
-        $urlData = $post["url_bestbuy"];
+        $urlData = $post["url_tweet_api_data"];
         dd('$urlData = ' . $urlData);
 
         $postPath = $post["path"];
         dd('$postPath = ' . $postPath);
 
-        $limit_calls = 15;
+        $postFromId = $post["from_id"];
+        dd('$postFromId = ' . $postFromId);
+
+        $limit_calls = 100; // *** NOTE: getting 100 items each call
         dd('$limit_calls = ' . $limit_calls);
-        $limit_min_chars = 60;
+        $limit_min_chars = 30;
         dd('$limit_min_chars = ' . $limit_min_chars);
-        $limit_max_chars = 400;
+        $limit_max_chars = 1000;
         dd('$limit_max_chars = ' . $limit_max_chars);
         $limit_max_posts = 87;
         dd('$limit_max_posts = ' . $limit_max_posts);
@@ -321,13 +333,13 @@
         $posts = [];
 
         // pagination
-        $page = 1;
         $numberOfPages = 0;
-        $selectedPages = array();
+        $offset = 0;
+        $limit = 100;
 
         while ($keepScraping) {
             // ********************************************************************************* CALL API DATA
-            dd("API DATA PAGE: $page | TOTAL PAGES PROCESSED: $numberOfPages");
+            dd("API DATA OFFSET: $offset | TOTAL PAGES PROCESSED: $numberOfPages");
 
 
 
@@ -335,11 +347,11 @@
             $curl = curl_init();
 
             // set CURL URL
-            dd(sprintf($urlData, $page));
-            curl_setopt($curl, CURLOPT_URL, sprintf($urlData, $page));
+            dd(sprintf($urlData, $offset, $limit));
+            curl_setopt($curl, CURLOPT_URL, sprintf($urlData, $offset, $limit));
             
             // IF needed wait some time just to be under the radar for anti scrapping sites
-            sleep(rand(10, 30));
+            // sleep(rand(10, 30));
 
             // return the transfer as a string, also with setopt()
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
@@ -364,38 +376,32 @@
 
 
 
-            if ( !empty($json_data) && !empty($json_data['reviews']) ) {
+            if (!empty($json_data)) {
+                // twitter API
+                foreach ($json_data as $index => $post) {
+                    $postText = $post["full_text"];
 
-                // valid return from the API
-                foreach ($json_data['reviews'] as $index => $post) {
-
-                    if ( array_key_exists("comment", $post) ) {
-                        $postText = $post["comment"];
-
-                        // preparing/cleaning the text
-                        $postText = str_replace("'", ' ', $postText);
-                        $postText = str_replace('"', ' ', $postText);
-                        $postText = str_replace(array("\r\n", "\r", "\n"), '', $postText);
-
-                        // check the length of the post
-                        if ( strlen($postText) > $limit_min_chars && strlen($postText) < $limit_max_chars ) {
-                            $posts[] = $postText;
-                        }
+                    // remove the @fromID
+                    $pos = strpos($postText, $postFromId);
+                    if ($pos !== false) {
+                        $rest = substr($postText, $pos + strlen($postFromId));
+                        $postText = $rest;
                     }
 
+                    // preparing/cleaning the text
+                    $postText = str_replace("'", ' ', $postText);
+                    $postText = str_replace('"', ' ', $postText);
+                    $postText = str_replace(array("\r\n", "\r", "\n"), '', $postText);
+
+                    // check the length of the post
+                    if ( strlen($postText) > $limit_min_chars && strlen($postText) < $limit_max_chars ) {
+                        $posts[] = $postText;
+                    }
                 }
 
                 $numberOfPages = $numberOfPages + 1;
 
-                $randomNumber = randomNoDuplicate(2, $json_data['totalPages'], $selectedPages);
-                if ($randomNumber === null) {
-                    // All numbers in range are already selected
-                    $keepScraping = false;
-                } else {
-                    // Random number selected: $randomNumber
-                    $page = $randomNumber;
-                    $selectedNumbers[] = $randomNumber;
-                }
+                $offset = $offset + $limit;
             }
             else {
                 $keepScraping = false;
@@ -409,6 +415,11 @@
             }
         }
 
+
+        // GET the initial POST and remove it from the list of posts
+        $firstPost = array_shift($posts);
+        dd('********************************************************************************* FIRST POST');
+        dd($firstPost);
 
 
         // ********************************************************************************* GET ONLY $max items randomly
@@ -434,7 +445,7 @@
 
 
         // ********************************************************************************* CALLCHATGPT
-        $content = callChatGPT_Posts($open_ai, $posts);
+        $content = callChatGPT_Posts($open_ai, $posts, $firstPost);
 
         if ( $content ) {
             dd("********************************************************************************* RESULTS FROM callChatGPT_Posts");
@@ -444,6 +455,7 @@
             dd($content["pros"]);
             dd($content["cons"]);
             dd($content["neutral"]);
+            dd($content["ai"]);
 
             $content_en = json_encode (
                 array(
@@ -452,7 +464,8 @@
                     "neutralTotal" => $content["neutralTotal"],
                     "pros" => $content["pros"],
                     "cons" => $content["cons"],
-                    "neutral" => $content["neutral"]
+                    "neutral" => $content["neutral"],
+                    "ai" => $content["ai"]
                 )
             );
 
@@ -469,7 +482,7 @@
 
             // Prepare the UPDATE statement
             $stmt = $pdo->prepare("
-            UPDATE reviews set 
+            UPDATE tweets set 
             summary_en = :summary_en,
             summary_ptbr = :summary_ptbr,
             status_torun = 0,
@@ -493,7 +506,7 @@
 
             // Prepare the UPDATE statement
             $stmt = $pdo->prepare("
-            UPDATE reviews set 
+            UPDATE tweets set 
             status_torun = 0,
             status_ok = 0,
             error = 'ERRORS PROCESSING the BATCH'

@@ -2,7 +2,10 @@
 
 // $router->get('/', 'views/underconstruction.php');
 $router->get('/', 'views/index.php');
-$router->get('/products', 'views/products.php');
+$router->get('/product', 'views/summary.php');
+$router->get('/tweet', 'views/summary.php');
+$router->get('/products', 'views/index.php');
+$router->get('/tweets', 'views/index.php');
 
 
 

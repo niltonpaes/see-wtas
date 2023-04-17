@@ -60,7 +60,7 @@
 			@media (max-width: 767px) {
 				.navTitle {
 					/* font-size: 20px; */
-					font-size: calc(17px + 0.6vw);
+					font-size: calc(16px + 0.6vw);
 				}
 			}
 
@@ -91,10 +91,13 @@
 				<div class="container">
 					<div class="row">
 						<div class="col-sm-8 col-md-7 py-4">
-							<h4 class="text-white">About</h4>
+							<h4 class="text-white"><?= ($locale == "en") ? 'About' : 'Sobre' ?></h4>
 							<p class="text-white">
-								<!-- Com a ajuda da inteligência artificial do ChatGPT, somos capazes de resumir avaliações reais de clientes postadas em grandes sites de vendas e também threads do Twitter. Isso permite que você descubra rapidamente o que as pessoas estão dizendo sobre um produto específico ou tweet sem ter que ler todas as postagens. <span class="fw-bold text-warning">Nós resumimos o que as pessoas estão dizendo para você.<i class="bi bi-hand-thumbs-up-fill"></i></span> -->
-								With the help of ChatGPT's artificial intelligence, we are able to summarize real customer reviews posted on large sales sites and Twitter threads. This allows you to quickly find out what people are saying about a specific product or tweet without having to read through all the posts. <span class="fw-bold text-warning">We summarize what people are saying for you.<i class="bi bi-hand-thumbs-up-fill"></i></span>
+								<?php if ($locale == "en"): ?>
+									With the help of ChatGPT/OpenAI's artificial intelligence, we are able to summarize real customer reviews posted on large sales sites and Twitter threads. This allows you to quickly find out what people are saying about a specific product or tweet without having to read through all the posts. <span class="fw-bold text-warning">We summarize what people are saying for you.<i class="bi bi-hand-thumbs-up-fill"></i></span>
+								<?php else: ?>
+									Com a ajuda da inteligência artificial do ChatGPT/OpenAI, somos capazes de resumir avaliações reais de clientes postadas em grandes sites de vendas e também threads do Twitter. Isso permite que você descubra rapidamente o que as pessoas estão dizendo sobre um produto específico ou tweet sem ter que ler todas as postagens. <span class="fw-bold text-warning">Nós resumimos o que as pessoas estão dizendo para você.<i class="bi bi-hand-thumbs-up-fill"></i></span>
+								<?php endif; ?>
 							</p>
 						</div>
 						<div class="col-sm-4 offset-md-1 py-4">
@@ -110,22 +113,25 @@
 			</div>
 			<div class="navbar navbar-dark bg-dark shadow-sm">
 				<div class="container">
-					<a href="/" class="navbar-brand d-flex flex-column flex-md-row align-items-center">
-						<!-- <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true" class="me-2" viewBox="0 0 24 24">
-							<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-							<circle cx="12" cy="13" r="4" />
-						</svg> -->
+					<a href="/<?= $locale ?>" class="navbar-brand d-flex flex-column flex-md-row align-items-center">
 						<img class="rounded-4 logoSize" src="/images/new_logo_1_transp_bg.png" alt="...">
 
 						<div class="d-flex align-items-center">
-							<h1 class="navTitle fw-bolder mb-0 px-0 px-md-2">See what they are saying AI...</h1>
+							<h1 class="navTitle fw-bolder mb-0 px-0 px-md-2"><?= ($locale == "en") ? 'See what they are saying AI...' : 'Veja o que estão falando AI...' ?></h1>
 							<p class="blinking fw-normal mb-0 px-2 px-md-0 h-100">&#9608;</p>
 						</div>
 						
 					</a>
-					<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
+					<div class="d-flex flex-column">
+						<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+							<span class="navbar-toggler-icon"></span>
+						</button>
+						<?php if ($locale == "en"): ?>
+							<a href="/ptbr" class="text-center mt-2"><img style="width:25px" src="/images/br.svg" alt="língua: Português-BR" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Português-BR"></a>
+						<?php else: ?>
+							<a href="/en" class="text-center mt-2"><img style="width:25px" src="/images/en.svg" alt="Language: English" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="English"></a>
+						<?php endif; ?>
+					</div>
 				</div>
 			</div>
 		</header>

@@ -42,7 +42,6 @@ class Router
 
     public function route($path, $method)
     {
-
         // path example -> http://localhost/en/product/test-a
 
         $path_segments = explode('/', $path);
@@ -51,10 +50,14 @@ class Router
         array_shift($path_segments);
 
         $locale = ( isset($path_segments[0]) && !empty($path_segments[0]) ) ? $path_segments[0] : "";
-        $path = ( isset($path_segments[1]) && !empty($path_segments[1]) ) ? $path_segments[1] : "";
-        $product = ( isset($path_segments[2]) && !empty($path_segments[2]) ) ? $path_segments[2] : "";
+        if ($locale !== 'en' && $locale !== 'ptbr' ) {
+            header('Location: /en');
+            exit();
+        }
+        $dataset = ( isset($path_segments[1]) && !empty($path_segments[1]) ) ? $path_segments[1] : "";
+        $path = ( isset($path_segments[2]) && !empty($path_segments[2]) ) ? $path_segments[2] : "";
 
-        $uri = "/" . $path;
+        $uri = "/" . $dataset;
 
         // if ( !empty($locale) && !empty($path) && !empty($product) ) {
         //     $uri = "/" . $path;
@@ -72,10 +75,10 @@ class Router
         // dd([$path_segments[0] ?? 'lang=empty', $path_segments[1] ?? 'uri=empty', (isset($path_segments[2]) && !empty($path_segments[2])) ? $path_segments[2] : 'product=empty']);
         // dd(
         //     [
-        //         $uri,
-        //         $locale,
-        //         $path,
-        //         $product
+        //         "locale" => $locale,
+        //         "dataset" => $dataset,
+        //         "path" => $path,
+        //         "uri" => $uri
         //     ]
         // );
 

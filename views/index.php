@@ -1,22 +1,93 @@
-<?php require base_path('views/partials/head.php') ?>
+<?php 
+require base_path('views/partials/head.php');
+require base_path('core/database_connection.php');
+?>
 
 <?php
-// ******************** MYSQL CONFIGURATION ********************
-// --- PC 
-// $dsn = "mysql:host=localhost:3306;dbname=seewtas";
-// $username = "root";
-// $password = "";
-// --- MAC
-$dsn = "mysql:host=localhost:8889;dbname=seewtas";
-$username = "root";
-$password = "root";
-
-$options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
-$pdo = new PDO($dsn, $username, $password, $options);
-
 // Prepare the SELECT statement
 // $sql = "SELECT  FROM mytable WHERE id = ?";
-$sql = "SELECT * FROM reviews where status_ok  is true";
+// $sql = "SELECT * FROM reviews where status_ok is true";
+if ($dataset == ''){
+	$sql = " 
+	select 
+		'reviews' as `table`,
+		path,
+		image,
+		product_title,
+		null as tweet_blockquote,
+		summary_en,
+		summary_ptbr,
+		IF(
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+		)
+		AS time_diff,
+		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+	from reviews where status_toprod is true
+	union
+	select 
+		'tweets' as `table`,
+		path,
+		null as image,
+		null product_title,
+		tweet_blockquote,
+		summary_en,
+		summary_ptbr,
+		IF(
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+		)
+		AS time_diff,
+		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+	from tweets where status_toprod is true
+	order by time_hours_diff
+	";
+}
+else if ($dataset == 'products') {
+	$sql = " 
+	select 
+		'reviews' as `table`,
+		path,
+		image,
+		product_title,
+		null as tweet_blockquote,
+		summary_en,
+		summary_ptbr,
+		IF(
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+		)
+		AS time_diff,
+		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+	from reviews where status_toprod is true
+	order by time_hours_diff
+	";
+}
+else if ($dataset == 'tweets') {
+	$sql = " 
+	select 
+		'tweets' as `table`,
+		path,
+		null as image,
+		null product_title,
+		tweet_blockquote,
+		summary_en,
+		summary_ptbr,
+		IF(
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+		)
+		AS time_diff,
+		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+	from tweets where status_toprod is true
+	order by time_hours_diff
+	";
+}
+
 
 $stmt = $pdo->prepare($sql);
 
@@ -39,16 +110,21 @@ if (!$result) {
 		<div class="row py-lg-3">
 			<div class="col-lg-6 col-md-8 mx-auto">
 
-				<h2>Try it now!</h2>
-				<!-- <h2>Experimente agora!</h2> -->
-
-				<p class="lead text-muted">Tired of reading too many reviews about that product you're interested in or several posts about that tweet that caught your attention? Don't worry! We can summarize all of that for you.</p>
-				<!-- <p class="lead text-muted">Está cansado de ler muitos reviews sobre aquele produto que você está interessado ou vários posts sobre aquele tweet que chamou sua atenção? Não se preocupe! Nós podemos resumir tudo isso para você.</p> -->
+				<h2><?= ($locale == "en") ? 'Try it now!' : 'Experimente agora!' ?></h2>
+ 
+				<p class="lead text-muted">
+					<?= ($locale == "en") ? 
+						"Tired of reading too many reviews about that product you're interested in or several posts about that tweet that caught your attention? Don't worry! We can summarize all of that for you."  
+						: 
+						"Cansado de ler aquele monte de reviews sobre o produto que você está interessado ou vários posts sobre aquele tweet que te chamou atenção? Não se preocupe! Nós resumimos tudo isso para você." 
+					?>
+				</p>
+				
 				<p>
-					<a href="#" class="btn btn-primary btn-lg rounded-4 my-2">
-						<span class="d-flex align-items-center"><i class="bi bi-bar-chart-steps me-2"></i><span>Products</span></span>
+					<a href="/<?= ($locale == "en") ? 'en' : 'ptbr' ?>/products" class="btn btn-primary btn-lg rounded-4 my-2 <?= ($dataset == "products") ? 'active' : '' ?>">
+						<span class="d-flex align-items-center"><i class="bi bi-bar-chart-steps me-2"></i><span><?= ($locale == "en") ? 'Products' : 'Produtos' ?></span></span>
 					</a>
-					<a href="#" class="btn btn-primary btn-lg rounded-4 my-2">
+					<a href="/<?= ($locale == "en") ? 'en' : 'ptbr' ?>/tweets" class="btn btn-primary btn-lg rounded-4 my-2 <?= ($dataset == "tweets") ? 'active' : '' ?>" >
 						<span class="d-flex align-items-center"><i class="bi bi-twitter me-2"></i><span>Tweets</span></span>
 					</a>
 				</p>
@@ -60,88 +136,44 @@ if (!$result) {
 		<div class="container">
 			<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
 
+				<?php foreach ($result as $item): ?>
 
-				<!-- <div class="col">
-					<div class="card shadow-sm">
-						<img class="card-img-top" width="100%" src="https://multimedia.bbycastatic.ca/multimedia/products/500x500/161/16157/16157519.jpg" class="img-fluid" alt="..." />
-						<div class="card-body">
-							<p class="card-text">Logitech MX Master 3S Wireless Darkfield Mouse</p>
+					<?php if ($item['table'] == 'reviews'): ?>
+						<div class="col">
+							<div class="card shadow-sm h-100">
+								<img class="card-img-top p-3 p-md-4" width="100%" src="<?= $item['image'] ?>" class="img-fluid" alt="..." />
+								<div class="card-body">
+									<p class="card-text"><?= $item['product_title'] ?></p>
 
-							<div class="d-flex justify-content-between align-items-center">
-								<div class="btn-group">
-									<a href="/en/products/logitech-mx-master-3s" class="btn btn-sm btn-outline-secondary">View</a>
-								</div>
-								<small class="text-muted">9 mins</small>
-							</div>
-						</div>
-					</div>
-				</div> -->
-
-				<div class="col">
-					<div class="card shadow-sm h-100">
-						<div class="card-body">
-							<div>
-								<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Cash Money goes Flying after a Renegade Cop Eliminates a Woman with &#39;The Rock Bottom&#39; during a Chaotic Rumble... <a href="https://t.co/SJCmIoIh2R">pic.twitter.com/SJCmIoIh2R</a></p>&mdash; Fight Haven (@FightHaven) <a href="https://twitter.com/FightHaven/status/1642874603545706498?ref_src=twsrc%5Etfw">April 3, 2023</a></blockquote>
-								<!-- <blockquote class="twitter-tweet">
-									<p lang="pt" dir="ltr">Estão com vergonha de postar o gol da classificação????<br />Posta aí ????</p>
-									&mdash; Ronaldo Giovaneli (@Ronaldo601) <a href="https://twitter.com/Ronaldo601/status/1637564460532482048?ref_src=twsrc%5Etfw">March 19, 2023</a>
-								</blockquote>
-								<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
-							</div>
-
-							<div class="d-flex justify-content-between align-items-center">
-								<div class="btn-group">
-									<button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-								</div>
-								<small class="text-muted">9 mins</small>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<?php foreach ($result as $item) : ?>
-
-					<div class="col">
-						<div class="card shadow-sm h-100">
-							<img class="card-img-top p-3 p-md-4" width="100%" src="<?= $item['image'] ?>" class="img-fluid" alt="..." />
-							<div class="card-body">
-								<p class="card-text"><?= $item['product_title'] ?></p>
-
-								<div class="d-flex justify-content-between align-items-center">
-									<div class="btn-group">
-										<!-- <a href="/en/products/logitech-mx-master-3s" class="btn btn-sm btn-outline-secondary">View</a> -->
-										<a href="<?= "/en/products/{$item['path']}" ?>" class="btn btn-sm btn-outline-secondary">View</a>
+									<div class="d-flex justify-content-between align-items-center">
+										<div class="btn-group">
+											<a href="<?= "/$locale/product/{$item['path']}" ?>" class="btn btn-sm btn-outline-secondary"><?= ($locale == "en") ? 'View' : 'Visualizar' ?></a>
+										</div>
+										<small class="text-muted"><?= $item['time_diff'] ?></small>
 									</div>
-									<small class="text-muted">9 mins</small>
 								</div>
 							</div>
 						</div>
-					</div>
+					<?php else: ?>
+						<div class="col">
+							<div class="card shadow-sm h-100">
+								<div class="card-body">
+									<div>
+										<?= $item['tweet_blockquote'] ?>
+									</div>
+
+									<div class="d-flex justify-content-between align-items-center">
+										<div class="btn-group">
+											<a href="<?= "/$locale/tweet/{$item['path']}" ?>" class="btn btn-sm btn-outline-secondary"><?= ($locale == "en") ? 'View' : 'Visualizar' ?></a>
+										</div>
+										<small class="text-muted"><?= $item['time_diff'] ?></small>
+									</div>
+								</div>
+							</div>
+						</div>
+					<?php endif; ?>
 
 				<?php endforeach; ?>
-
-				<div class="col">
-					<div class="card shadow-sm h-100">
-						<div class="card-body">
-							<div>
-								<!-- <blockquote class="twitter-tweet"><p lang="en" dir="ltr">Cash Money goes Flying after a Renegade Cop Eliminates a Woman with &#39;The Rock Bottom&#39; during a Chaotic Rumble... <a href="https://t.co/SJCmIoIh2R">pic.twitter.com/SJCmIoIh2R</a></p>&mdash; Fight Haven (@FightHaven) <a href="https://twitter.com/FightHaven/status/1642874603545706498?ref_src=twsrc%5Etfw">April 3, 2023</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
-								<!-- <blockquote class="twitter-tweet">
-									<p lang="pt" dir="ltr">Estão com vergonha de postar o gol da classificação????<br />Posta aí ????</p>
-									&mdash; Ronaldo Giovaneli (@Ronaldo601) <a href="https://twitter.com/Ronaldo601/status/1637564460532482048?ref_src=twsrc%5Etfw">March 19, 2023</a>
-								</blockquote>
-								<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script> -->
-								<blockquote class="twitter-tweet"><p lang="pt" dir="ltr">O cancelamento da Feira Israelense na UNICAMP por conta de manifestações contrárias é um episódio muito triste. Inviabilizaram um evento só pela participação de Israel. Isso é inaceitável. Há muito tempo nossas Universidades deixaram de ser ambientes democráticos.<br><br>Não é de hoje…</p>&mdash; Kim Kataguiri (@KimKataguiri) <a href="https://twitter.com/KimKataguiri/status/1643242411542425605?ref_src=twsrc%5Etfw">April 4, 2023</a></blockquote> 
-							</div>
-
-							<div class="d-flex justify-content-between align-items-center">
-								<div class="btn-group">
-									<button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-								</div>
-								<small class="text-muted">9 mins</small>
-							</div>
-						</div>
-					</div>
-				</div>
 
 			</div>
 		</div>
