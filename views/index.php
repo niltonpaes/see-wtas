@@ -13,7 +13,7 @@ if ($dataset == ''){
 		'reviews' as `table`,
 		path,
 		image,
-		product_title,
+		product_title as title,
 		null as tweet_blockquote,
 		summary_en,
 		summary_ptbr,
@@ -30,7 +30,7 @@ if ($dataset == ''){
 		'tweets' as `table`,
 		path,
 		null as image,
-		null product_title,
+		concat('Tweet - ', from_id) as title,
 		tweet_blockquote,
 		summary_en,
 		summary_ptbr,
@@ -51,7 +51,7 @@ else if ($dataset == 'products') {
 		'reviews' as `table`,
 		path,
 		image,
-		product_title,
+		product_title as title,
 		null as tweet_blockquote,
 		summary_en,
 		summary_ptbr,
@@ -72,7 +72,7 @@ else if ($dataset == 'tweets') {
 		'tweets' as `table`,
 		path,
 		null as image,
-		null product_title,
+		concat('Tweet - ', from_id) as title,
 		tweet_blockquote,
 		summary_en,
 		summary_ptbr,
@@ -114,9 +114,9 @@ if (!$result) {
  
 				<p class="lead text-muted">
 					<?= ($locale == "en") ? 
-						"Tired of reading too many reviews about that product you're interested in or several posts about that tweet that caught your attention? Don't worry! We can summarize all of that for you."  
+						"With no time or bored to read so many reviews about that product you're interested in or several posts about that tweet that caught your attention? Don't worry! We can summarize all of that for you."  
 						: 
-						"Cansado de ler aquele monte de reviews sobre o produto que você está interessado ou vários posts sobre aquele tweet que te chamou atenção? Não se preocupe! Nós resumimos tudo isso para você." 
+						"Sem tempo ou sem vontade pra ler aquele monte de reviews sobre o produto que você está interessado ou vários posts sobre aquele tweet que te chamou atenção? Não se preocupe! Nós resumimos tudo isso para você." 
 					?>
 				</p>
 				
@@ -141,13 +141,14 @@ if (!$result) {
 					<?php if ($item['table'] == 'reviews'): ?>
 						<div class="col">
 							<div class="card shadow-sm h-100">
-								<img class="card-img-top p-3 p-md-4" width="100%" src="<?= $item['image'] ?>" class="img-fluid" alt="..." />
 								<div class="card-body">
-									<p class="card-text"><?= $item['product_title'] ?></p>
+									<h3 class="card-text fs-5"><?= $item['title'] ?></h3>
+								
+									<img class="card-img-top p-3 p-md-4" width="100%" src="<?= $item['image'] ?>" class="img-fluid" alt="..." />
 
-									<div class="d-flex justify-content-between align-items-center">
+									<div class="d-flex justify-content-between align-items-center py-3">
 										<div class="btn-group">
-											<a href="<?= "/$locale/product/{$item['path']}" ?>" class="btn btn-sm btn-outline-secondary"><?= ($locale == "en") ? 'View' : 'Visualizar' ?></a>
+											<a href="<?= "/$locale/product/{$item['path']}" ?>" class="btn btn-sm btn-primary"><?= ($locale == "en") ? 'See what they are saying' : 'Veja o que estão falando' ?></a>
 										</div>
 										<small class="text-muted"><?= $item['time_diff'] ?></small>
 									</div>
@@ -158,13 +159,15 @@ if (!$result) {
 						<div class="col">
 							<div class="card shadow-sm h-100">
 								<div class="card-body">
+									<h3 class="card-text fs-5"><?= $item['title'] ?></h3>
+
 									<div>
 										<?= $item['tweet_blockquote'] ?>
 									</div>
 
-									<div class="d-flex justify-content-between align-items-center">
+									<div class="d-flex justify-content-between align-items-center py-3">
 										<div class="btn-group">
-											<a href="<?= "/$locale/tweet/{$item['path']}" ?>" class="btn btn-sm btn-outline-secondary"><?= ($locale == "en") ? 'View' : 'Visualizar' ?></a>
+											<a href="<?= "/$locale/tweet/{$item['path']}" ?>" class="btn btn-sm btn-primary"><?= ($locale == "en") ? 'See what they are saying' : 'Veja o que estão falando' ?></a>
 										</div>
 										<small class="text-muted"><?= $item['time_diff'] ?></small>
 									</div>

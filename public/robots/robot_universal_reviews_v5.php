@@ -12,13 +12,13 @@
 
 // <meta name="description" content="This is an example meta description. It should be concise, informative, and include relevant keywords.">
 // 155 - 160 chars
-// en:      Discover what people are saying about products and tweets. Our AI aggregator summarizes real feedback from sales sites and Twitter posts, allowing you to stay informed quickly and easily.
-// pt-br:   Descubra o que as pessoas estão falando sobre produtos e tweets. Nosso agregador AI resume feedbacks reais de sites de vendas e postagens no Twitter, permitindo que você se mantenha informado de forma rápida e fácil.
+// en:      Check out product reviews and twitter threads. Our AI aggregator summarizes real feedback from sales sites and Twitter posts, allowing you to stay informed quickly and easily.
+// pt-br:   Confira avaliações de produtos e threads do Twitter. Nosso agregador AI resume feedbacks reais de sites de vendas e postagens no Twitter, permitindo que você se mantenha informado de forma rápida e fácil.
 
 // <meta name="keywords" content="example, keywords, on-page optimization">
 // 1024 with comma
-// en:      review, product, summary, tweet, twitter, AI, <product_title>, <product_company>, <category>, <sub_category>, <4 pros>, <4 cons>
-// pr-br:   feedback, review, avaliação, produto, resumo, tweet, twitter, AI, IA, <product_title>, <product_company>, <category>, <sub_category>, <4 pros>, <4 cons>
+// en:      review, reviews, product, products, summary, tweet, twitter, AI, artificial inteligence, <product_title>, <product_company>, <category>, <sub_category>, <4 pros>, <4 cons>
+// pr-br:   feedback, feedbacks, review, reviews, avaliação, avaliações, produto, produtos, resumo, tweet, twitter, AI, IA, inteligência artificial, <product_title>, <product_company>, <category>, <sub_category>, <4 pros>, <4 cons>
 
 
 

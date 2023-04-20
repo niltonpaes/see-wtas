@@ -1,5 +1,4 @@
 <?php 
-require base_path('views/partials/head.php');
 require base_path('core/database_connection.php');
 ?>
 
@@ -28,17 +27,33 @@ $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Check if a record exists
 if (!$result) {
-	dd("**** No result ***");
+	http_response_code(404);
+	require base_path("views/404.php");
 	die();
 }
 else {
 	if ($dataset == "product") {
 
+		// general info related to the product
+		$productTitle = $result['product_title'];
+		$productCompany = $result['product_company'];
+		$category = $result['category'];
+		$subCategory = $result['sub_category'];
+
+
 		if ($locale == "en") {
 			$summary = 	json_decode($result['summary_en']);
+
+			$prosText = "Pros";
+			$consText = "Cons";
+			$neutralText = "Neutrals";
 		}
 		else {
 			$summary = 	json_decode($result['summary_ptbr']);
+
+			$prosText = "Pros";
+			$consText = "Cons";
+			$neutralText = "Neutros";
 		}
 
 		$pros = $summary->pros;
@@ -54,11 +69,29 @@ else {
 		$neutralTotalPerc = round( ( $neutralTotal / ( $prosTotal + $consTotal +  $neutralTotal ) ) *100 , 1) . "%" ;
 	}
 	else {
+
+		// general info related to the product
+		$fromId = $result['from_id'];
+		$fromName = $result['from_name'];
+		$category = $result['category'];
+		$subCategory = $result['sub_category'];
+
+
 		if ($locale == "en") {
 			$summary = 	json_decode($result['summary_en']);
+
+			$prosText = "In favor";
+			$consText = "Against";
+			$neutralText = "Neutrals";
+			$aiText = "AI Comments";
 		}
 		else {
 			$summary = 	json_decode($result['summary_ptbr']);
+
+			$prosText = "A favor";
+			$consText = "Contra";
+			$neutralText = "Neutro";
+			$aiText = "Comentários da IA";
 		}
 
 		$pros = $summary->pros;
@@ -72,6 +105,10 @@ else {
 		$ai = $summary->ai;
 	}
 }
+?>
+
+<?php 
+require base_path('views/partials/head.php');
 ?>
 
 <main>
@@ -109,13 +146,15 @@ else {
 													<img src="<?= $result['image'] ?>" class="img-fluid rounded-start" alt="...">
 												</div>
 												<div class="col-12 col-md-8 px-1 px-lg-3">
-													<h2 class="card-title"><?= $result['product_title'] ?></h2>
+													<h2 class="card-title"><?= $productTitle ?></h2>
 												</div>
 											</div>
 										<?php else: ?>
 											<!-- Tweet -->
 											<div class="row align-items-center mb-4">
-												<div class="col-12 col-md-4 px-1 px-lg-3">
+												<div class="col-12 col-md-8 px-1 px-lg-3">
+													<h2 class="card-title"><?= "Tweet - $fromId" ?></h2>
+
 													<?= $result['tweet_blockquote'] ?>
 												</div>
 											</div>
@@ -127,7 +166,7 @@ else {
 
 											<!-- PROS -->
 											<div class="col-12 px-1 px-lg-3 mb-2">
-												<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-hand-thumbs-up me-2"></i><span>Pros</span></h3>
+												<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-hand-thumbs-up me-2"></i><span><?= $prosText ?></span></h3>
 											</div>
 
 											<?php if ($dataset == "product"): ?>
@@ -147,10 +186,10 @@ else {
 											<div class="col-12 col-md-4 px-1 px-lg-3 mb-5">
 												<div class="card mb-4 rounded-3 shadow-sm">
 													<div class="card-header py-3 text-center">
-														<h4 class="my-0 fw-normal">Postive Reviews</h4>
+														<h4 class="my-0 fw-normal">Total</h4>
 													</div>
 													<div class="card-body text-center">
-														<h1 class="card-title pricing-card-title"><?= $prosTotalPerc ?></h1>
+														<h4 class="card-title pricing-card-title fw-bold fs-3"><?= $prosTotalPerc ?></h4>
 													</div>
 												</div>
 											</div>
@@ -159,7 +198,7 @@ else {
 											
 											<!-- CONS -->
 											<div class="col-12 px-1 px-lg-3 mb-2">
-												<h3 class="d-flex align-items-center"><i class="fs-1 text-warning bi bi-hand-thumbs-down me-2"></i><span>Cons</span></h3>
+												<h3 class="d-flex align-items-center"><i class="fs-1 text-warning bi bi-hand-thumbs-down me-2"></i><span><?= $consText ?></span></h3>
 											</div>
 
 											<?php if ($dataset == "product"): ?>
@@ -179,10 +218,10 @@ else {
 											<div class="col-12 col-md-4 px-1 px-lg-3 mb-5">
 												<div class="card mb-4 rounded-3 shadow-sm">
 													<div class="card-header py-3 text-center">
-														<h4 class="my-0 fw-normal">Negative Reviews</h4>
+														<h4 class="my-0 fw-normal">Total</h4>
 													</div>
 													<div class="card-body text-center">
-														<h1 class="card-title pricing-card-title"><?= $consTotalPerc ?></h1>
+														<h4 class="card-title pricing-card-title fw-bold fs-3"><?= $consTotalPerc ?></h4>
 													</div>
 												</div>
 											</div>
@@ -191,7 +230,7 @@ else {
 
 											<!-- NEUTRALS -->
 											<div class="col-12 px-1 px-lg-3 mb-2">
-												<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-hand-thumbs-up me-2"></i><i class="fs-1 text-warning bi bi-hand-thumbs-down me-2"></i><span>Neutrals</span></h3>
+												<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-hand-thumbs-up me-2"></i><i class="fs-1 text-warning bi bi-hand-thumbs-down me-2"></i><span><span><?= $neutralText ?></span></h3>
 											</div>
 
 											<?php if ($dataset == "product"): ?>
@@ -211,10 +250,10 @@ else {
 											<div class="col-12 col-md-4 px-1 px-lg-3 mb-5">
 												<div class="card mb-4 rounded-3 shadow-sm">
 													<div class="card-header py-3 text-center">
-														<h4 class="my-0 fw-normal">Neutral Reviews</h4>
+														<h4 class="my-0 fw-normal">Total</h4>
 													</div>
 													<div class="card-body text-center">
-														<h1 class="card-title pricing-card-title"><?= $neutralTotalPerc ?></h1>
+														<h4 class="card-title pricing-card-title fw-bold fs-3"><?= $neutralTotalPerc ?></h4>
 													</div>
 												</div>
 											</div>
@@ -224,7 +263,7 @@ else {
 											<!-- AI Comments -->
 											<?php if ($dataset == "tweet"): ?>
 												<div class="col-12 px-1 px-lg-3 mb-2">
-													<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-chat-left-text me-2"></i><span>AI Comments</span></h3>
+													<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-chat-left-text me-2"></i><span><?= $aiText ?></span></h3>
 												</div>
 											
 												<div class="col-12 col-md-8 px-1 px-lg-3 mb-5">

@@ -1,0 +1,15 @@
+User-agent: *
+
+Allow: /
+Allow: /en/
+Allow: /en/products/
+Allow: /en/product/
+Allow: /en/tweets/
+Allow: /en/tweet/
+Allow: /ptbr/
+Allow: /ptbr/products/
+Allow: /ptbr/product/
+Allow: /ptbr/tweets/
+Allow: /ptbr/tweet/
+
+Sitemap: https://www.swtas.com/sitemap.php

@@ -1,12 +1,65 @@
+<?php
+	if ( !isset($locale) ) {
+		$locale = "en";
+	}
+
+	if (isset($dataset) && $dataset == 'product') {
+		$extraInfo = 
+		(isset($productTitle) ? $productTitle . ', ' : '') .
+		(isset($productCompany) ? $productCompany . ', ' : '') .
+		(isset($category) ? $category . ', ' : '') .
+		(isset($subCategory) ? $subCategory : '');
+	}
+	else if (isset($dataset) && $dataset == 'tweet') {
+		$extraInfo = 
+		(isset($fromId) ? $fromId . ', ' : '') .
+		(isset($fromName) ? $fromName . ', ' : '') .
+		(isset($category) ? $category . ', ' : '') .
+		(isset($subCategory) ? $subCategory : '');
+	}
+	else {
+		$extraInfo = ""	;
+	}
+
+	$titleText = ($locale == "en") ? 
+	'See what they are saying AI | Check out product reviews and Twitter threads' . ($extraInfo ? ' | ' . $extraInfo : '') :
+	'Veja o que estão falando AI | Confira avaliações de produtos e threads do Twitter' . ($extraInfo ? ' | ' . $extraInfo : '');
+
+	$descriptionText = ($locale == "en") ? 
+	"Check out product reviews and twitter threads. Our AI aggregator summarizes real feedback from sales sites and Twitter posts, allowing you to stay informed quickly and easily." : 
+	"Confira avaliações de produtos e threads do Twitter. Nosso agregador IA resume feedbacks reais de sites de vendas e postagens no Twitter, permitindo que você se mantenha informado de forma rápida e fácil.";
+
+	$keywordsText = ($locale == "en") ? 
+	'review, reviews, product, products, summary, tweet, twitter, AI, artificial inteligence' . ($extraInfo ? ', ' . $extraInfo : '') :
+	'feedback, feedbacks, review, reviews, avaliação, avaliações, produto, produtos, resumo, tweet, twitter, AI, IA, inteligência artificial' . ($extraInfo ? ', ' . $extraInfo : '');
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-SM2GP8806P"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+
+			gtag('config', 'G-SM2GP8806P');
+		</script>
+
+		
+		<!-- Google ADSENSE -->
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3627558445921230"
+     	crossorigin="anonymous"></script>
+
+
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="description" content="" />
-		<meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors" />
-		<meta name="generator" content="Hugo 0.108.0" />
-		<title>See what they are saying AI...</title>
+
+		<title><?= $titleText ?></title>
+		<meta name="description" content="<?= $descriptionText ?>">
+    	<meta name="keywords" content="<?= $keywordsText ?>">
 
 		<link href="/assets/dist/css/bootstrap.min.css" rel="stylesheet" />
 
@@ -85,6 +138,7 @@
 
 		</style>
 	</head>
+
 	<body>
 		<header>
 			<div class="collapse bg-dark bg-gradient" id="navbarHeader">

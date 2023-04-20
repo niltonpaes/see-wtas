@@ -7,28 +7,6 @@
 // https://api.apify.com/v2/datasets/RWamoTAvghnjrbyj0/items?token=apify_api_7YCeaeDtENG6R6TlAN783bA1Z6Y3Pg3uTsQv&offset=100&limit=99&fields=full_text
 
 
-// product_title
-// product_company
-// category
-// sub_category
-
-// title - 60-70 chars
-// <title>Example Page Title</title>
-// en:      <product_title> | See what they are saying AI
-// pt-br:   <product_title> | Veja o que estão falando AI
-
-// <meta name="description" content="This is an example meta description. It should be concise, informative, and include relevant keywords.">
-// 155 - 160 chars
-// en:      Discover what people are saying about products and tweets. Our AI aggregator summarizes real feedback from sales sites and Twitter posts, allowing you to stay informed quickly and easily.
-// pt-br:   Descubra o que as pessoas estão falando sobre produtos e tweets. Nosso agregador AI resume feedbacks reais de sites de vendas e postagens no Twitter, permitindo que você se mantenha informado de forma rápida e fácil.
-
-// <meta name="keywords" content="example, keywords, on-page optimization">
-// 1024 with comma
-// en:      review, product, summary, tweet, twitter, AI, <product_title>, <product_company>, <category>, <sub_category>, <4 pros>, <4 cons>
-// pr-br:   feedback, review, avaliação, produto, resumo, tweet, twitter, AI, IA, <product_title>, <product_company>, <category>, <sub_category>, <4 pros>, <4 cons>
-
-
-
     // ********************************************************************************* CHATGPT CONFIGURATION
     require __DIR__ . '/../../vendor/autoload.php'; // remove this line if you use a PHP Framework.
     use Orhanerday\OpenAi\OpenAi;

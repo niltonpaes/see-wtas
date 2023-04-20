@@ -42,7 +42,10 @@ class Router
 
     public function route($path, $method)
     {
-        // path example -> http://localhost/en/product/test-a
+        // ------------------------------------------------------
+        // path example: 
+        // http://localhost/en/product/test-a
+        // ------------------------------------------------------
 
         $path_segments = explode('/', $path);
 
@@ -50,29 +53,20 @@ class Router
         array_shift($path_segments);
 
         $locale = ( isset($path_segments[0]) && !empty($path_segments[0]) ) ? $path_segments[0] : "";
-        if ($locale !== 'en' && $locale !== 'ptbr' ) {
+        // redirects to english if no lacale is passed in the URL
+        if (!$locale ) {
             header('Location: /en');
             exit();
         }
+        else if ($locale !== 'en' && $locale !== 'ptbr') {
+            $this->abort();
+        }
+
         $dataset = ( isset($path_segments[1]) && !empty($path_segments[1]) ) ? $path_segments[1] : "";
         $path = ( isset($path_segments[2]) && !empty($path_segments[2]) ) ? $path_segments[2] : "";
 
         $uri = "/" . $dataset;
 
-        // if ( !empty($locale) && !empty($path) && !empty($product) ) {
-        //     $uri = "/" . $path;
-        // }
-        // elseif ( !empty($locale) && !empty($path) && empty($product) ) {
-        //     $uri = "/" . $path;
-        // }
-        // elseif ( !empty($locale) && empty($path) && empty($product) ) {
-        //     $uri = "/";
-        // }
-        // else {
-        //     $uri = "/";
-        // }
-
-        // dd([$path_segments[0] ?? 'lang=empty', $path_segments[1] ?? 'uri=empty', (isset($path_segments[2]) && !empty($path_segments[2])) ? $path_segments[2] : 'product=empty']);
         // dd(
         //     [
         //         "locale" => $locale,
