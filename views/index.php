@@ -4,87 +4,142 @@ require base_path('core/database_connection.php');
 ?>
 
 <?php
+// PAGINATION
+// Determine the total number of products
+if ($dataset == ''){
+	$sql = "
+	SELECT COUNT(*) AS total_records
+	FROM (
+	SELECT path 
+	from reviews where status_toprod is true
+	UNION
+	SELECT path 
+	from tweets where status_toprod is true
+	) AS union_query;
+	";
+}
+else if ($dataset == 'products') {
+	$sql = "
+	SELECT COUNT(*) AS total_records
+	FROM reviews where status_toprod is true
+	";
+}
+else if ($dataset == 'tweets') {
+	$sql = "
+	SELECT COUNT(*) AS total_records
+	FROM tweets where status_toprod is true
+	";
+}
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+$totalRecords = $result['total_records'];
+
+// Determine the current page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+// Calculate the offset and limit
+$recordsPerPage = 6;
+$offset = ($page - 1) * $recordsPerPage;
+$limit = $recordsPerPage;
+
+
+
 // Prepare the SELECT statement
 // $sql = "SELECT  FROM mytable WHERE id = ?";
 // $sql = "SELECT * FROM reviews where status_ok is true";
 if ($dataset == ''){
 	$sql = " 
-	select 
-		'reviews' as `table`,
-		path,
-		image,
-		product_title as title,
-		null as tweet_blockquote,
-		summary_en,
-		summary_ptbr,
-		IF(
-			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
-			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
-			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
-		)
-		AS time_diff,
-		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-	from reviews where status_toprod is true
-	union
-	select 
-		'tweets' as `table`,
-		path,
-		null as image,
-		concat('Tweet - ', from_id) as title,
-		tweet_blockquote,
-		summary_en,
-		summary_ptbr,
-		IF(
-			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
-			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
-			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
-		)
-		AS time_diff,
-		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-	from tweets where status_toprod is true
-	order by time_hours_diff
+	select * from 
+	(
+		select 
+			'reviews' as `table`,
+			path,
+			image,
+			product_title as title,
+			null as tweet_blockquote,
+			summary_en,
+			summary_ptbr,
+			IF(
+				TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+			)
+			AS time_diff,
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+		from reviews where status_toprod is true
+		union
+		select 
+			'tweets' as `table`,
+			path,
+			null as image,
+			concat('Tweet - ', from_id) as title,
+			tweet_blockquote,
+			summary_en,
+			summary_ptbr,
+			IF(
+				TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+			)
+			AS time_diff,
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+		from tweets where status_toprod is true
+		order by time_hours_diff
+	) AS union_query
+	LIMIT $offset, $limit
 	";
 }
 else if ($dataset == 'products') {
 	$sql = " 
-	select 
-		'reviews' as `table`,
-		path,
-		image,
-		product_title as title,
-		null as tweet_blockquote,
-		summary_en,
-		summary_ptbr,
-		IF(
-			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
-			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
-			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
-		)
-		AS time_diff,
-		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-	from reviews where status_toprod is true
-	order by time_hours_diff
+	select * from 
+	(
+		select 
+			'reviews' as `table`,
+			path,
+			image,
+			product_title as title,
+			null as tweet_blockquote,
+			summary_en,
+			summary_ptbr,
+			IF(
+				TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+			)
+			AS time_diff,
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+		from reviews where status_toprod is true
+		order by time_hours_diff
+	) AS union_query
+	LIMIT $offset, $limit
 	";
 }
 else if ($dataset == 'tweets') {
 	$sql = " 
-	select 
-		'tweets' as `table`,
-		path,
-		null as image,
-		concat('Tweet - ', from_id) as title,
-		tweet_blockquote,
-		summary_en,
-		summary_ptbr,
-		IF(
-			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
-			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
-			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
-		)
-		AS time_diff,
-		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-	from tweets where status_toprod is true
-	order by time_hours_diff
+	select * from 
+	(
+		select 
+			'tweets' as `table`,
+			path,
+			null as image,
+			concat('Tweet - ', from_id) as title,
+			tweet_blockquote,
+			summary_en,
+			summary_ptbr,
+			IF(
+				TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+			)
+			AS time_diff,
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+		from tweets where status_toprod is true
+		order by time_hours_diff
+	) AS union_query
+	LIMIT $offset, $limit
 	";
 }
 
@@ -116,7 +171,7 @@ if (!$result) {
 					<?= ($locale == "en") ? 
 						"With no time or bored to read so many reviews about that product you're interested in or several posts about that tweet that caught your attention? Don't worry! We can summarize all of that for you."  
 						: 
-						"Sem tempo ou sem vontade pra ler aquele monte de reviews sobre o produto que você está interessado ou vários posts sobre aquele tweet que te chamou atenção? Não se preocupe! Nós resumimos tudo isso para você." 
+						"Sem tempo ou paciência pra ler aquele monte de reviews sobre o produto que você está interessado ou vários posts sobre aquele tweet que te chamou atenção? Não se preocupe! Nós resumimos tudo isso para você." 
 					?>
 				</p>
 				
@@ -179,6 +234,50 @@ if (!$result) {
 				<?php endforeach; ?>
 
 			</div>
+
+
+			<!-- PAGINATION -->
+			<nav aria-label="Page navigation" class="mt-4">
+				<ul class="pagination align-items-center">
+					<?php
+					$totalPages = ceil($totalRecords / $recordsPerPage);
+					$showPages = 3;
+					$middlePage = ($showPages - 1) / 2;
+					
+					$startPage = max(1, $page - $middlePage);
+					$endPage = min($totalPages, $startPage + $showPages - 1);
+					$startPage = max(1, $endPage - $showPages + 1);
+					?>
+					
+					<li class="page-item<?php echo ($page == 1) ? ' disabled' : ''; ?>">
+						<!-- <a class="page-link" href="?page=1"><i class="fs-4 bi-skip-start-btn"></i></a> -->
+						<a class="page-link" href="?page=1"> << </a>
+					</li>
+					
+					<li class="page-item<?php echo ($page == 1) ? ' disabled' : ''; ?>">
+						<!-- <a class="page-link" href="?page=<?php echo $page - 1; ?>"><i class="fs-4 bi bi-skip-backward-btn"></i></a> -->
+						<a class="page-link" href="?page=<?php echo $page - 1; ?>"> < </i></a>
+					</li>
+					
+					<?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+						<li class="page-item<?php echo ($i == $page) ? ' active' : ''; ?>">
+							<a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+						</li>
+					<?php endfor; ?>
+					
+					<li class="page-item<?php echo ($page == $totalPages) ? ' disabled' : ''; ?>">
+						<!-- <a class="page-link" href="?page=<?php echo $page + 1; ?>"><i class="fs-4 bi-skip-forward-btn"></i></a> -->
+						<a class="page-link" href="?page=<?php echo $page + 1; ?>"> > </i></a>
+					</li>
+					
+					<li class="page-item<?php echo ($page == $totalPages) ? ' disabled' : ''; ?>">
+						<!-- <a class="page-link" href="?page=<?php echo $totalPages; ?>"><i class="fs-4 bi-skip-end-btn"></i></a> -->
+						<a class="page-link" href="?page=<?php echo $totalPages; ?>"> >> </a>
+					</li>
+				</ul>
+			</nav>
+
+
 		</div>
 	</div>
 </main>
