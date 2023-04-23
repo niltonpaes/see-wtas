@@ -12,4 +12,4 @@ Allow: /ptbr/product/
 Allow: /ptbr/tweets/
 Allow: /ptbr/tweet/
 
-Sitemap: https://website.swtas.com/sitemap.php
+Sitemap: https://swtas-ai.com/sitemap.php

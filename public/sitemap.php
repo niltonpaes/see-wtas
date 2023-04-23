@@ -3,10 +3,7 @@
 // ----------------------------------------------------------------------------------------
 // set the base_path
 // ----------------------------------------------------------------------------------------
-// local
-// const BASE_PATH = __DIR__.'/../';
-// host
-const BASE_PATH = __DIR__.'/../../';
+const BASE_PATH = __DIR__.'/../';
 
 require BASE_PATH.'core/functions.php';
 require base_path('core/database_connection.php');
@@ -49,7 +46,7 @@ $resultTweets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // ---------------------------------------------------
 // set the main domain
 // ---------------------------------------------------
-$domain = "https://website.swtas.com/";
+$domain = "https://swtas-ai.com/";
 
 // ---------------------------------------------------
 // create pages array

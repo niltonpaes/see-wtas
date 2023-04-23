@@ -40,18 +40,18 @@
 	<head>
 
 
-		<!-- Google Search -->
-		<meta name="google-site-verification" content="9cof43C8dbqAyRQWuUBx92H-1lC8i7NaHjxhna46ECk" />
+		<!-- Google Search - not used - using domain -->
+		<!-- <meta name="google-site-verification" content="9cof43C8dbqAyRQWuUBx92H-1lC8i7NaHjxhna46ECk" /> -->
 
 		<!-- Google tag (gtag.js) -->
-		<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-SM2GP8806P"></script>
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-TC6JEGSV21"></script>
 		<script>
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
 			gtag('js', new Date());
 
-			gtag('config', 'G-SM2GP8806P');
-		</script> -->
+			gtag('config', 'G-TC6JEGSV21');
+		</script>
 		
 		<!-- Google ADSENSE -->
 		<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3627558445921230"
@@ -161,7 +161,7 @@
 								<li><a href="https://www.twitter.com/" target="_blank" class="text-white">Follow on Twitter</a></li>
 								<li><a href="https://www.youtube.com/" target="_blank" class="text-white">YouTube</a></li>
 								<li><a href="https://www.tiktok.com/" target="_blank" class="text-white">TikTok</a></li>
-								<li><a href="mailto:swtas.hq@gmail.com" target="_blank" class="text-white">Email me</a></li>
+								<li><a href="mailto:swtas.ai.contact@gmail.com" target="_blank" class="text-white">Email me</a></li>
 							</ul>
 						</div>
 					</div>
