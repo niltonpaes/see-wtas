@@ -87,58 +87,52 @@ if ($dataset == ''){
 			AS time_diff,
 			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
 		from tweets where status_toprod is true
-		order by time_hours_diff
+		order by time_hours_diff asc
 	) AS union_query
 	LIMIT $offset, $limit
 	";
 }
 else if ($dataset == 'products') {
 	$sql = " 
-	select * from 
-	(
-		select 
-			'reviews' as `table`,
-			path,
-			image,
-			product_title as title,
-			null as tweet_blockquote,
-			summary_en,
-			summary_ptbr,
-			IF(
-				TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
-				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
-				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
-			)
-			AS time_diff,
-			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-		from reviews where status_toprod is true
-		order by time_hours_diff
-	) AS union_query
+	select 
+		'reviews' as `table`,
+		path,
+		image,
+		product_title as title,
+		null as tweet_blockquote,
+		summary_en,
+		summary_ptbr,
+		IF(
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+		)
+		AS time_diff,
+		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+	from reviews where status_toprod is true
+	order by time_hours_diff asc
 	LIMIT $offset, $limit
 	";
 }
 else if ($dataset == 'tweets') {
 	$sql = " 
-	select * from 
-	(
-		select 
-			'tweets' as `table`,
-			path,
-			null as image,
-			concat('Tweet - ', from_id) as title,
-			tweet_blockquote,
-			summary_en,
-			summary_ptbr,
-			IF(
-				TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
-				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
-				concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
-			)
-			AS time_diff,
-			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-		from tweets where status_toprod is true
-		order by time_hours_diff
-	) AS union_query
+	select 
+		'tweets' as `table`,
+		path,
+		null as image,
+		concat('Tweet - ', from_id) as title,
+		tweet_blockquote,
+		summary_en,
+		summary_ptbr,
+		IF(
+			TIMESTAMPDIFF(HOUR, created_at, NOW()) >= 24, 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW()) / 24) , ' day(s)'), 
+			concat(FLOOR(TIMESTAMPDIFF(HOUR, created_at, NOW())) , ' hour(s)')
+		)
+		AS time_diff,
+		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
+	from tweets where status_toprod is true
+	order by time_hours_diff asc
 	LIMIT $offset, $limit
 	";
 }
@@ -183,6 +177,11 @@ if (!$result) {
 						<span class="d-flex align-items-center"><i class="bi bi-twitter me-2"></i><span>Tweets</span></span>
 					</a>
 				</p>
+
+				<form class="d-flex mt-3 mt-lg-0" role="search" method="GET" >
+					<input class="form-control me-2" type="search" name="search"  placeholder="Search" aria-label="Search">
+					<button class="btn btn-outline-success" type="submit">Search</button>
+				</form>
 			</div>
 		</div>
 	</section>

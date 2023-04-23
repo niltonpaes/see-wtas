@@ -182,11 +182,19 @@
 						<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
 							<span class="navbar-toggler-icon"></span>
 						</button>
+
+						<?php
+							$href = 
+							($locale=='en' ? "/ptbr" : "/en") .
+							($dataset ? "/$dataset" : "") .
+							($path ? "/$path" : "") ;
+						?>
 						<?php if ($locale == "en"): ?>
-							<a href="/ptbr" class="text-center mt-2"><img style="width:25px" src="/images/br.svg" alt="língua: Português-BR" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Português-BR"></a>
+							<a href="<?= $href ?>" class="text-center mt-2"><img style="width:25px" src="/images/br.svg" alt="língua: Português-BR" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Português-BR"></a>
 						<?php else: ?>
-							<a href="/en" class="text-center mt-2"><img style="width:25px" src="/images/en.svg" alt="Language: English" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="English"></a>
+							<a href="<?= $href ?>" class="text-center mt-2"><img style="width:25px" src="/images/en.svg" alt="Language: English" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="English"></a>
 						<?php endif; ?>
+						
 					</div>
 				</div>
 			</div>

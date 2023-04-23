@@ -1,5 +1,7 @@
 User-agent: *
 
+Disallow: /robots/
+
 Allow: /
 Allow: /en/
 Allow: /en/products/
