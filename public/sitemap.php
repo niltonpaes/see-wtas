@@ -1,6 +1,13 @@
 <?php
 
-const BASE_PATH = __DIR__.'/../';
+// ----------------------------------------------------------------------------------------
+// set the base_path
+// ----------------------------------------------------------------------------------------
+// local
+// const BASE_PATH = __DIR__.'/../';
+// host
+const BASE_PATH = __DIR__.'/../../';
+
 require BASE_PATH.'core/functions.php';
 require base_path('core/database_connection.php');
 
@@ -39,32 +46,36 @@ $stmt->execute();
 $resultTweets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
+// ---------------------------------------------------
+// set the main domain
+// ---------------------------------------------------
+$domain = "https://website.swtas.com/";
 
 // ---------------------------------------------------
 // create pages array
 // ---------------------------------------------------
 $pages = array(
-    'https://www.swtas.com/',
+    "{$domain}",
 
-    'https://www.swtas.com/en/',
-    'https://www.swtas.com/en/products/',
-    'https://www.swtas.com/en/tweets/',
+    "{$domain}en/",
+    "{$domain}en/products/",
+    "{$domain}en/tweets/",
 
-    'https://www.swtas.com/ptbr/',
-    'https://www.swtas.com/ptbr/products/',
-    'https://www.swtas.com/ptbr/tweets/',
+    "{$domain}ptbr/",
+    "{$domain}ptbr/products/",
+    "{$domain}ptbr/tweets/",
 );
 foreach ($resultReviews as $item) {
     $path = $item['path'];
 
-    $pages[] = "https://www.swtas.com/en/product/{$path}";
-    $pages[] = "https://www.swtas.com/ptbr/product/{$path}";
+    $pages[] = "{$domain}en/product/{$path}";
+    $pages[] = "{$domain}ptbr/product/{$path}";
 }
 foreach ($resultTweets as $item) {
     $path = $item['path'];
 
-    $pages[] = "https://www.swtas.com/en/tweet/{$path}";
-    $pages[] = "https://www.swtas.com/ptbr/tweet/{$path}";
+    $pages[] = "{$domain}en/tweet/{$path}";
+    $pages[] = "{$domain}ptbr/tweet/{$path}";
 }
 
 

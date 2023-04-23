@@ -40,6 +40,8 @@
 	<head>
 
 
+		<!-- Google Search -->
+		<meta name="google-site-verification" content="9cof43C8dbqAyRQWuUBx92H-1lC8i7NaHjxhna46ECk" />
 
 		<!-- Google tag (gtag.js) -->
 		<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-SM2GP8806P"></script>
@@ -50,7 +52,6 @@
 
 			gtag('config', 'G-SM2GP8806P');
 		</script> -->
-
 		
 		<!-- Google ADSENSE -->
 		<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3627558445921230"

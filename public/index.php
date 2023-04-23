@@ -1,9 +1,14 @@
 <?php
 
+// ----------------------------------------------------------------------------------------
+// set the base_path
+// ----------------------------------------------------------------------------------------
+// local
 const BASE_PATH = __DIR__.'/../';
+// host
+// const BASE_PATH = __DIR__.'/../../';
 require BASE_PATH.'core/functions.php';
 // from now on I can just use the function base_path
-
 // dd(BASE_PATH);
 
 require base_path('core/Router.php');
