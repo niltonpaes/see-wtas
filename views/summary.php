@@ -37,8 +37,8 @@ else {
 		// general info related to the product
 		$productTitle = $result['product_title'];
 		$productCompany = $result['product_company'];
-		$category = $result['category'];
-		$subCategory = $result['sub_category'];
+		$category = ($locale == "en") ? $result['category_en'] : $result['category_ptbr'];
+		$subCategory = ($locale == "en") ? $result['sub_category_en'] : $result['sub_category_ptbr'];
 
 
 		if ($locale == "en") {
@@ -73,8 +73,8 @@ else {
 		// general info related to the product
 		$fromId = $result['from_id'];
 		$fromName = $result['from_name'];
-		$category = $result['category'];
-		$subCategory = $result['sub_category'];
+		$category = ($locale == "en") ? $result['category_en'] : $result['category_ptbr'];
+		$subCategory = ($locale == "en") ? $result['sub_category_en'] : $result['sub_category_ptbr'];
 
 
 		if ($locale == "en") {

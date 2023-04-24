@@ -36,7 +36,7 @@
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= ($locale == "ptbr") ? 'pt-br' : 'en' ?>">
 	<head>
 
 

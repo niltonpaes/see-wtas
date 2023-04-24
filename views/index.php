@@ -4,6 +4,39 @@ require base_path('core/database_connection.php');
 ?>
 
 <?php
+
+// SEARCH
+$search = isset($_GET['search']) ? $_GET['search'] : null;
+if ($search) {
+	$searchQueryProducts = " and
+	( 
+		product_title like '%{$search}%' or
+		product_company like '%{$search}%' or
+		category_en like '%{$search}%' or
+		category_ptbr like '%{$search}%' or
+		sub_category_en like '%{$search}%' or
+		sub_category_ptbr like '%{$search}%'
+	)
+	";
+
+	$searchQueryTweets = " and
+	( 
+		from_id like '%{$search}%' or
+		from_name like '%{$search}%' or
+		category_en like '%{$search}%' or
+		category_ptbr like '%{$search}%' or
+		sub_category_en like '%{$search}%' or
+		sub_category_ptbr like '%{$search}%'
+	)
+	";
+}
+else {
+	$searchQueryProducts = "";
+	$searchQueryTweets = "";
+}
+
+
+
 // PAGINATION
 // Determine the total number of products
 if ($dataset == ''){
@@ -11,25 +44,35 @@ if ($dataset == ''){
 	SELECT COUNT(*) AS total_records
 	FROM (
 	SELECT path 
-	from reviews where status_toprod is true
+	from reviews where 
+		status_toprod is true
+		{$searchQueryProducts}
 	UNION
 	SELECT path 
-	from tweets where status_toprod is true
+	from tweets where 
+		status_toprod is true
+		{$searchQueryTweets}
 	) AS union_query;
 	";
 }
 else if ($dataset == 'products') {
 	$sql = "
 	SELECT COUNT(*) AS total_records
-	FROM reviews where status_toprod is true
+	FROM reviews where 
+		status_toprod is true
+		{$searchQueryProducts}
 	";
 }
 else if ($dataset == 'tweets') {
 	$sql = "
 	SELECT COUNT(*) AS total_records
-	FROM tweets where status_toprod is true
+	FROM tweets where 
+		status_toprod is true
+		{$searchQueryTweets}
 	";
 }
+
+
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
@@ -69,7 +112,9 @@ if ($dataset == ''){
 			)
 			AS time_diff,
 			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-		from reviews where status_toprod is true
+		from reviews where 
+			status_toprod is true
+			{$searchQueryProducts}
 		union
 		select 
 			'tweets' as `table`,
@@ -86,7 +131,9 @@ if ($dataset == ''){
 			)
 			AS time_diff,
 			TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-		from tweets where status_toprod is true
+		from tweets where 
+			status_toprod is true
+			{$searchQueryTweets}
 		order by time_hours_diff asc
 	) AS union_query
 	LIMIT $offset, $limit
@@ -109,7 +156,9 @@ else if ($dataset == 'products') {
 		)
 		AS time_diff,
 		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-	from reviews where status_toprod is true
+	from reviews where 
+		status_toprod is true
+		{$searchQueryProducts}
 	order by time_hours_diff asc
 	LIMIT $offset, $limit
 	";
@@ -131,12 +180,15 @@ else if ($dataset == 'tweets') {
 		)
 		AS time_diff,
 		TIMESTAMPDIFF(HOUR, created_at, NOW()) as time_hours_diff
-	from tweets where status_toprod is true
+	from tweets where 
+		status_toprod is true
+		{$searchQueryTweets}
 	order by time_hours_diff asc
 	LIMIT $offset, $limit
 	";
 }
 
+// dd($sql);
 
 $stmt = $pdo->prepare($sql);
 
@@ -149,8 +201,8 @@ $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check if a record exists
 if (!$result) {
-    dd("**** No result ***");
-	die();
+    // dd("**** No result ***");
+	// die();
 }
 ?>
 
@@ -179,7 +231,7 @@ if (!$result) {
 				</p>
 
 				<form class="d-flex mt-3 mt-lg-0" role="search" method="GET" >
-					<input class="form-control me-2" type="search" name="search"  placeholder="Search" aria-label="Search">
+					<input class="form-control me-2" type="search" name="search"  placeholder="<?= $search ? $search : '' ?>" aria-label="Search">
 					<button class="btn btn-outline-success" type="submit">Search</button>
 				</form>
 			</div>
@@ -188,94 +240,115 @@ if (!$result) {
 
 	<div class="album py-5 bg-light">
 		<div class="container">
-			<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
 
-				<?php foreach ($result as $item): ?>
+			<?php if ($result): ?>
 
-					<?php if ($item['table'] == 'reviews'): ?>
-						<div class="col">
-							<div class="card shadow-sm h-100">
-								<div class="card-body">
-									<h3 class="card-text fs-5"><?= $item['title'] ?></h3>
-								
-									<img class="card-img-top p-3 p-md-4" width="100%" src="<?= $item['image'] ?>" class="img-fluid" alt="..." />
+				<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
 
-									<div class="d-flex justify-content-between align-items-center py-3">
-										<div class="btn-group">
-											<a href="<?= "/$locale/product/{$item['path']}" ?>" class="btn btn-sm btn-primary"><?= ($locale == "en") ? 'See what they are saying' : 'Veja o que estão falando' ?></a>
+					<?php foreach ($result as $item): ?>
+
+						<?php if ($item['table'] == 'reviews'): ?>
+							<div class="col">
+								<div class="card shadow-sm h-100">
+									<div class="card-body">
+										<h3 class="card-text fs-5"><?= $item['title'] ?></h3>
+									
+										<img class="card-img-top p-3 p-md-4" width="100%" src="<?= $item['image'] ?>" class="img-fluid" alt="..." />
+
+										<div class="d-flex justify-content-between align-items-center py-3">
+											<div class="btn-group">
+												<a href="<?= "/$locale/product/{$item['path']}" ?>" class="btn btn-sm btn-primary"><?= ($locale == "en") ? 'See what they are saying' : 'Veja o que estão falando' ?></a>
+											</div>
+											<small class="text-muted"><?= $item['time_diff'] ?></small>
 										</div>
-										<small class="text-muted"><?= $item['time_diff'] ?></small>
 									</div>
 								</div>
 							</div>
-						</div>
-					<?php else: ?>
-						<div class="col">
-							<div class="card shadow-sm h-100">
-								<div class="card-body">
-									<h3 class="card-text fs-5"><?= $item['title'] ?></h3>
+						<?php else: ?>
+							<div class="col">
+								<div class="card shadow-sm h-100">
+									<div class="card-body">
+										<h3 class="card-text fs-5"><?= $item['title'] ?></h3>
 
-									<div>
-										<?= $item['tweet_blockquote'] ?>
-									</div>
-
-									<div class="d-flex justify-content-between align-items-center py-3">
-										<div class="btn-group">
-											<a href="<?= "/$locale/tweet/{$item['path']}" ?>" class="btn btn-sm btn-primary"><?= ($locale == "en") ? 'See what they are saying' : 'Veja o que estão falando' ?></a>
+										<div>
+											<?= $item['tweet_blockquote'] ?>
 										</div>
-										<small class="text-muted"><?= $item['time_diff'] ?></small>
+
+										<div class="d-flex justify-content-between align-items-center py-3">
+											<div class="btn-group">
+												<a href="<?= "/$locale/tweet/{$item['path']}" ?>" class="btn btn-sm btn-primary"><?= ($locale == "en") ? 'See what they are saying' : 'Veja o que estão falando' ?></a>
+											</div>
+											<small class="text-muted"><?= $item['time_diff'] ?></small>
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-					<?php endif; ?>
+						<?php endif; ?>
 
-				<?php endforeach; ?>
+					<?php endforeach; ?>
 
-			</div>
+				</div>
 
 
-			<!-- PAGINATION -->
-			<nav aria-label="Page navigation" class="mt-4">
-				<ul class="pagination align-items-center">
-					<?php
-					$totalPages = ceil($totalRecords / $recordsPerPage);
-					$showPages = 3;
-					$middlePage = ($showPages - 1) / 2;
-					
-					$startPage = max(1, $page - $middlePage);
-					$endPage = min($totalPages, $startPage + $showPages - 1);
-					$startPage = max(1, $endPage - $showPages + 1);
-					?>
-					
-					<li class="page-item<?php echo ($page == 1) ? ' disabled' : ''; ?>">
-						<!-- <a class="page-link" href="?page=1"><i class="fs-4 bi-skip-start-btn"></i></a> -->
-						<a class="page-link" href="?page=1"> << </a>
-					</li>
-					
-					<li class="page-item<?php echo ($page == 1) ? ' disabled' : ''; ?>">
-						<!-- <a class="page-link" href="?page=<?php echo $page - 1; ?>"><i class="fs-4 bi bi-skip-backward-btn"></i></a> -->
-						<a class="page-link" href="?page=<?php echo $page - 1; ?>"> < </i></a>
-					</li>
-					
-					<?php for ($i = $startPage; $i <= $endPage; $i++): ?>
-						<li class="page-item<?php echo ($i == $page) ? ' active' : ''; ?>">
-							<a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+				<!-- PAGINATION -->
+				<nav aria-label="Page navigation" class="mt-4">
+					<ul class="pagination align-items-center">
+						<?php
+						$totalPages = ceil($totalRecords / $recordsPerPage);
+						$showPages = 3;
+						$middlePage = ($showPages - 1) / 2;
+						
+						$startPage = max(1, $page - $middlePage);
+						$endPage = min($totalPages, $startPage + $showPages - 1);
+						$startPage = max(1, $endPage - $showPages + 1);
+
+
+						// check search 
+						if ($search) {
+							$queryStringSearch = "&search={$search}";
+						}
+						else {
+							$queryStringSearch = "";
+						}
+						?>
+						
+						<li class="page-item<?php echo ($page == 1) ? ' disabled' : ''; ?>">
+							<!-- <a class="page-link" href="?page=1"><i class="fs-4 bi-skip-start-btn"></i></a> -->
+							<a class="page-link" href="?page=1<?= $queryStringSearch ?>"> << </a>
 						</li>
-					<?php endfor; ?>
-					
-					<li class="page-item<?php echo ($page == $totalPages) ? ' disabled' : ''; ?>">
-						<!-- <a class="page-link" href="?page=<?php echo $page + 1; ?>"><i class="fs-4 bi-skip-forward-btn"></i></a> -->
-						<a class="page-link" href="?page=<?php echo $page + 1; ?>"> > </i></a>
-					</li>
-					
-					<li class="page-item<?php echo ($page == $totalPages) ? ' disabled' : ''; ?>">
-						<!-- <a class="page-link" href="?page=<?php echo $totalPages; ?>"><i class="fs-4 bi-skip-end-btn"></i></a> -->
-						<a class="page-link" href="?page=<?php echo $totalPages; ?>"> >> </a>
-					</li>
-				</ul>
-			</nav>
+						
+						<li class="page-item<?php echo ($page == 1) ? ' disabled' : ''; ?>">
+							<!-- <a class="page-link" href="?page=<?php echo $page - 1; ?>"><i class="fs-4 bi bi-skip-backward-btn"></i></a> -->
+							<a class="page-link" href="?page=<?php echo $page - 1; ?><?= $queryStringSearch ?>"> < </i></a>
+						</li>
+						
+						<?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+							<li class="page-item<?php echo ($i == $page) ? ' active' : ''; ?>">
+								<a class="page-link" href="?page=<?php echo $i; ?><?= $queryStringSearch ?>"><?php echo $i; ?></a>
+							</li>
+						<?php endfor; ?>
+						
+						<li class="page-item<?php echo ($page == $totalPages) ? ' disabled' : ''; ?>">
+							<!-- <a class="page-link" href="?page=<?php echo $page + 1; ?>"><i class="fs-4 bi-skip-forward-btn"></i></a> -->
+							<a class="page-link" href="?page=<?php echo $page + 1; ?><?= $queryStringSearch ?>"> > </i></a>
+						</li>
+						
+						<li class="page-item<?php echo ($page == $totalPages) ? ' disabled' : ''; ?>">
+							<!-- <a class="page-link" href="?page=<?php echo $totalPages; ?>"><i class="fs-4 bi-skip-end-btn"></i></a> -->
+							<a class="page-link" href="?page=<?php echo $totalPages; ?><?= $queryStringSearch ?>"> >> </a>
+						</li>
+					</ul>
+				</nav>
 
+			<?php else: ?>
+
+				<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
+					<div class="col">
+						<p><?= ($locale == "en") ? 'Your search did not return any results. Please try again with different keywords or check your spelling.' : 'Sua busca não retornou resultados. Por favor, tente novamente com palavras-chave diferentes ou verifique a ortografia.' ?></p>
+					</div>
+				</div>
+
+			<?php endif; ?>
 
 		</div>
 	</div>
