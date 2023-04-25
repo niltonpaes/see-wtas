@@ -80,17 +80,17 @@ else {
 		if ($locale == "en") {
 			$summary = 	json_decode($result['summary_en']);
 
-			$prosText = "In favor";
-			$consText = "Against";
-			$neutralText = "Neutrals";
+			$prosText = "'Kinda' In favor. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
+			$consText = "'Kinda' Against. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
+			$neutralText = "'Kinda' Neutrals. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
 			$aiText = "AI Comments";
 		}
 		else {
 			$summary = 	json_decode($result['summary_ptbr']);
 
-			$prosText = "A favor";
-			$consText = "Contra";
-			$neutralText = "Neutro";
+			$prosText = "'Mais ou menos' A favor. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
+			$consText = "'Mais ou menos' Contra. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
+			$neutralText = "'Mais ou menos' Neutro. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
 			$aiText = "Comentários da IA";
 		}
 
@@ -179,7 +179,11 @@ require base_path('views/partials/head.php');
 												</div>
 											<?php else: ?>
 												<div class="col-12 col-md-8 px-1 px-lg-3 mb-5">
-													<p><?= $pros ?></p>
+													<ul class="list-group">
+														<?php foreach ($pros as $item): ?>
+															<li class="list-group-item"><?= $item ?></li>
+														<?php endforeach; ?>
+													</ul>
 												</div>
 											<?php endif; ?>
 
@@ -211,7 +215,11 @@ require base_path('views/partials/head.php');
 												</div>
 											<?php else: ?>
 												<div class="col-12 col-md-8 px-1 px-lg-3 mb-5">
-													<p><?= $cons ?></p>
+													<ul class="list-group">
+														<?php foreach ($cons as $item): ?>
+															<li class="list-group-item"><?= $item ?></li>
+														<?php endforeach; ?>
+													</ul>
 												</div>
 											<?php endif; ?>
 											
@@ -243,7 +251,11 @@ require base_path('views/partials/head.php');
 												</div>
 											<?php else: ?>
 												<div class="col-12 col-md-8 px-1 px-lg-3 mb-5">
-													<p><?= $neutral ?></p>
+													<ul class="list-group">
+														<?php foreach ($neutral as $item): ?>
+															<li class="list-group-item"><?= $item ?></li>
+														<?php endforeach; ?>
+													</ul>
 												</div>
 											<?php endif; ?>
 

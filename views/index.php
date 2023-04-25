@@ -1,5 +1,4 @@
 <?php 
-require base_path('views/partials/head.php');
 require base_path('core/database_connection.php');
 ?>
 
@@ -72,10 +71,20 @@ else if ($dataset == 'tweets') {
 	";
 }
 
+// dd($sql);
 
 
+// PAGINATION
 $stmt = $pdo->prepare($sql);
-$stmt->execute();
+try {
+    // Code that might cause an error
+	$stmt->execute();
+} catch (Exception $e) {
+    // Handle the error
+    http_response_code(404);
+	require base_path("views/404.php");
+	die();
+}
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $totalRecords = $result['total_records'];
@@ -134,8 +143,8 @@ if ($dataset == ''){
 		from tweets where 
 			status_toprod is true
 			{$searchQueryTweets}
-		order by time_hours_diff asc
 	) AS union_query
+	order by time_hours_diff asc
 	LIMIT $offset, $limit
 	";
 }
@@ -196,7 +205,15 @@ $stmt = $pdo->prepare($sql);
 // $stmt->bindParam(1, $product);
 
 // Execute the statement and fetch the result
-$stmt->execute();
+try {
+    // Code that might cause an error
+	$stmt->execute();
+} catch (Exception $e) {
+    // Handle the error
+    http_response_code(404);
+	require base_path("views/404.php");
+	die();
+}
 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check if a record exists
@@ -204,6 +221,10 @@ if (!$result) {
     // dd("**** No result ***");
 	// die();
 }
+?>
+
+<?php 
+require base_path('views/partials/head.php');
 ?>
 
 <main>

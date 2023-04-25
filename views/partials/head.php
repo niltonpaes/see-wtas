@@ -1,4 +1,5 @@
 <?php
+	// set the locale to eb if no locale is provided
 	if ( !isset($locale) ) {
 		$locale = "en";
 	}
@@ -41,7 +42,7 @@
 
 
 		<!-- Google Search - not used - using domain -->
-		<!-- <meta name="google-site-verification" content="9cof43C8dbqAyRQWuUBx92H-1lC8i7NaHjxhna46ECk" /> -->
+		<meta name="google-site-verification" content="LfcBXh8O6iXyNKsqLGMvArp07z_sgxZ5pM_a1c8L6kY" />
 
 		<!-- Google tag (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-TC6JEGSV21"></script>
@@ -54,8 +55,7 @@
 		</script>
 		
 		<!-- Google ADSENSE -->
-		<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3627558445921230"
-     	crossorigin="anonymous"></script> -->
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7226419475381629" crossorigin="anonymous"></script>
 
 
 		
