@@ -471,6 +471,7 @@
             $content_ptbr = callChatGPT_Translation($open_ai, $content_en);
         }
 
+        require base_path('core/database_connection.php');
 
         if ( $content_en && $content_ptbr) {
             dd("********************************************************************************* RESULTS FROM callChatGPT_Posts");

@@ -80,17 +80,17 @@ else {
 		if ($locale == "en") {
 			$summary = 	json_decode($result['summary_en']);
 
-			$prosText = "'Kinda' In favor. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
-			$consText = "'Kinda' Against. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
-			$neutralText = "'Kinda' Neutrals. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
+			$prosText = "<span class='fs-6'><small>'Kinda'</small></span> In favor/Supportive. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
+			$consText = "<span class='fs-6'><small>'Kinda'</small></span> Against/Critical. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
+			$neutralText = "<span class='fs-6'><small>'Kinda'</small></span> Neutral. <span class='fs-6'><small>Sometimes it's hard for the AI to tell.</small></span>";
 			$aiText = "AI Comments";
 		}
 		else {
 			$summary = 	json_decode($result['summary_ptbr']);
 
-			$prosText = "'Mais ou menos' A favor. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
-			$consText = "'Mais ou menos' Contra. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
-			$neutralText = "'Mais ou menos' Neutro. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
+			$prosText = "<span class='fs-6'><small>'Mais ou menos'</small></span> A favor/Apoiador. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
+			$consText = "<span class='fs-6'><small>'Mais ou menos'</small></span> Contra/Crítico. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
+			$neutralText = "<span class='fs-6'><small>'Mais ou menos'</small></span> Neutro. <span class='fs-6'><small>Às vezes é difícil para a IA distinguir.</small></span>";
 			$aiText = "Comentários da IA";
 		}
 
@@ -166,7 +166,7 @@ require base_path('views/partials/head.php');
 
 											<!-- PROS -->
 											<div class="col-12 px-1 px-lg-3 mb-2">
-												<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-hand-thumbs-up me-2"></i><span><?= $prosText ?></span></h3>
+												<h4 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-hand-thumbs-up me-2"></i><span><?= $prosText ?></span></h4>
 											</div>
 
 											<?php if ($dataset == "product"): ?>
@@ -190,10 +190,10 @@ require base_path('views/partials/head.php');
 											<div class="col-12 col-md-4 px-1 px-lg-3 mb-5">
 												<div class="card mb-4 rounded-3 shadow-sm">
 													<div class="card-header py-3 text-center">
-														<h4 class="my-0 fw-normal">Total</h4>
+														<h5 class="my-0 fw-normal">Total</h5>
 													</div>
 													<div class="card-body text-center">
-														<h4 class="card-title pricing-card-title fw-bold fs-3"><?= $prosTotalPerc ?></h4>
+														<h5 class="card-title pricing-card-title fw-bold fs-3"><?= $prosTotalPerc ?></h5>
 													</div>
 												</div>
 											</div>
@@ -202,7 +202,7 @@ require base_path('views/partials/head.php');
 											
 											<!-- CONS -->
 											<div class="col-12 px-1 px-lg-3 mb-2">
-												<h3 class="d-flex align-items-center"><i class="fs-1 text-warning bi bi-hand-thumbs-down me-2"></i><span><?= $consText ?></span></h3>
+												<h4 class="d-flex align-items-center"><i class="fs-1 text-warning bi bi-hand-thumbs-down me-2"></i><span><?= $consText ?></span></h4>
 											</div>
 
 											<?php if ($dataset == "product"): ?>
@@ -226,10 +226,10 @@ require base_path('views/partials/head.php');
 											<div class="col-12 col-md-4 px-1 px-lg-3 mb-5">
 												<div class="card mb-4 rounded-3 shadow-sm">
 													<div class="card-header py-3 text-center">
-														<h4 class="my-0 fw-normal">Total</h4>
+														<h5 class="my-0 fw-normal">Total</h5>
 													</div>
 													<div class="card-body text-center">
-														<h4 class="card-title pricing-card-title fw-bold fs-3"><?= $consTotalPerc ?></h4>
+														<h5 class="card-title pricing-card-title fw-bold fs-3"><?= $consTotalPerc ?></h5>
 													</div>
 												</div>
 											</div>
@@ -238,7 +238,7 @@ require base_path('views/partials/head.php');
 
 											<!-- NEUTRALS -->
 											<div class="col-12 px-1 px-lg-3 mb-2">
-												<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-hand-thumbs-up me-2"></i><i class="fs-1 text-warning bi bi-hand-thumbs-down me-2"></i><span><span><?= $neutralText ?></span></h3>
+												<h4 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-hand-thumbs-up me-2"></i><i class="fs-1 text-warning bi bi-hand-thumbs-down me-2"></i><span><span><?= $neutralText ?></span></h4>
 											</div>
 
 											<?php if ($dataset == "product"): ?>
@@ -262,10 +262,10 @@ require base_path('views/partials/head.php');
 											<div class="col-12 col-md-4 px-1 px-lg-3 mb-5">
 												<div class="card mb-4 rounded-3 shadow-sm">
 													<div class="card-header py-3 text-center">
-														<h4 class="my-0 fw-normal">Total</h4>
+														<h5 class="my-0 fw-normal">Total</h5>
 													</div>
 													<div class="card-body text-center">
-														<h4 class="card-title pricing-card-title fw-bold fs-3"><?= $neutralTotalPerc ?></h4>
+														<h5 class="card-title pricing-card-title fw-bold fs-3"><?= $neutralTotalPerc ?></h5>
 													</div>
 												</div>
 											</div>
@@ -275,7 +275,7 @@ require base_path('views/partials/head.php');
 											<!-- AI Comments -->
 											<?php if ($dataset == "tweet"): ?>
 												<div class="col-12 px-1 px-lg-3 mb-2">
-													<h3 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-chat-left-text me-2"></i><span><?= $aiText ?></span></h3>
+													<h4 class="d-flex align-items-center"><i class="fs-1 text-success bi bi-chat-left-text me-2"></i><span><?= $aiText ?></span></h4>
 												</div>
 											
 												<div class="col-12 col-md-8 px-1 px-lg-3 mb-5">
