@@ -164,11 +164,11 @@
             $fullChatGPTMessage .= "Exclusively based on the Twitter thread above create a perfect/valid JSON object with the following keys: \n\n";
 
             if ($summaryOrTotals == "summary") {
-                $fullChatGPTMessage .= "key named 'pros' = List of what people are saying in favor of the initial tweet. Not the actual replies, but a summary. \n\n";
-                $fullChatGPTMessage .= "key named 'cons' = List of what people are saying against the initial tweet. Not the actual replies, but a summary. \n\n";
-                $fullChatGPTMessage .= "key named 'neutral' = List of what people are saying neutral about the initial tweet. Not the actual replies, but a summary. \n\n";
+                $fullChatGPTMessage .= "key named 'pros' = List of what people are saying in favor of the initial tweet. Not the actual replies, but a summary. In English. \n\n";
+                $fullChatGPTMessage .= "key named 'cons' = List of what people are saying against the initial tweet. Not the actual replies, but a summary. In English. \n\n";
+                $fullChatGPTMessage .= "key named 'neutral' = List of what people are saying neutral about the initial tweet. Not the actual replies, but a summary. In English. \n\n";
     
-                $fullChatGPTMessage .= "key named 'ai' = Based on social, cultural, economic, scientific, historical, and political facts, create a text adding new perspectives and insights that help illuminate the discussion. \n\n";
+                $fullChatGPTMessage .= "key named 'ai' = Based on social, cultural, economic, scientific, historical, and political facts, create a text adding new perspectives and insights that help illuminate the discussion. In English. \n\n";
             }
             else {
                 $fullChatGPTMessage .= "key named 'prosTotal' = What is the percentage of replies in favor of the initial tweet? \n\n";
@@ -193,8 +193,8 @@
                         "content" => $fullChatGPTMessage
                     ],
                 ],
-                'temperature' => 0.5,
-                'max_tokens' => 900,
+                'temperature' => 0.6,
+                'max_tokens' => ($summaryOrTotals == "summary") ? 900 : 300,
                 'frequency_penalty' => 0,
                 'presence_penalty' => 0,
                 'top_p' => 0.5
@@ -212,7 +212,7 @@
                 // let's try again with less elements in the array, sleep first
                 sleep(50);
                 // prepare the posts for GPT summay
-                array_splice($posts, 0, 4);
+                array_splice($posts, 0, 5);
                 $postsForGPT = "";
                 foreach ($posts as $index => $post) {
                     // appending to the list of posts
@@ -308,12 +308,17 @@
         $postFromId = $post["from_id"];
         dd('$postFromId = ' . $postFromId);
 
+        
+        
         $limit_calls = 100; // *** NOTE: getting 100 items each call. $limit below
         dd('$limit_calls = ' . $limit_calls);
+
         $limit_min_chars = 35;
         dd('$limit_min_chars = ' . $limit_min_chars);
-        $limit_max_chars = 1000;
+        
+        $limit_max_chars = 1000; // *** more than twitter limit
         dd('$limit_max_chars = ' . $limit_max_chars);
+
         $limit_max_posts = 85;
         dd('$limit_max_posts = ' . $limit_max_posts);
 
